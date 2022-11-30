@@ -10,11 +10,6 @@ async function airportByIsocode(airportCountry) {
     return jsonAnswer;
 }
 
-// async function get_Name(playerName) {
-//     const nameAnswer = await fetch(`http://127.0.0.1:3000/newplayer/${playerName}`)
-//     const data = await nameAnswer.text()
-//     console.log(data);
-// }
 
 async function addPlayer() {
     const playerName = prompt("Enter your name :");
@@ -26,7 +21,6 @@ async function addPlayer() {
         body: JSON.stringify({airport: airportData, playerName: playerName})
     });
 }
-// get_Name(playerName)
 
 
 function updateMap(jsonAnswer) {
@@ -40,13 +34,4 @@ function updateMap(jsonAnswer) {
         .openPopup();
 }
 
-
 addPlayer()
-
-
-// airportByIsocode(airportCountry);
-
-
-
-
-
