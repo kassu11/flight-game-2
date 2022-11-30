@@ -1,4 +1,5 @@
 let airportCountry = prompt('Enter the starting country code:');
+const playerName = prompt('Enter your name :');
 const map = L.map('map')
 
 async function kutsu(airportCountry) {
@@ -8,6 +9,14 @@ async function kutsu(airportCountry) {
     updateMap(jsonAnswer)
 
 }
+
+async function get_Name(playerName) {
+    const nameAnswer = await fetch(`http://127.0.0.1:3000/newplayer/${playerName}`)
+    const data = await nameAnswer.text()
+    console.log(data);
+}
+ get_Name(playerName)
+
 
 function updateMap(jsonAnswer) {
     const longitude_deg = jsonAnswer.longitude_deg
@@ -21,6 +30,10 @@ function updateMap(jsonAnswer) {
         .bindPopup(jsonAnswer.name)
         .openPopup();
 }
+
+
+
+
 
 kutsu(airportCountry);
 
