@@ -1,4 +1,8 @@
 #map{
     height: 500px;
-    widht: 500px;
+    width: 100%;
+}
+
+.leaflet-bottom.leaflet-right {
+    display: none;
 }
