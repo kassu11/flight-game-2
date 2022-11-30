@@ -11,7 +11,7 @@ Käytettyjä pycharm lisäosio
   </tr>
   <tr>
     <td>mysql-connector-python</td>
-    <td>8.0.31</td>
+    <td>8.0.29</td>
   </tr>
   <tr>
     <td>Flask</td>
