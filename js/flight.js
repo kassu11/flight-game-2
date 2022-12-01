@@ -16,6 +16,7 @@ async function addPlayer() {
     const startIsoCode = prompt('Enter the starting country code:');
 
     const airportData = await airportByIsocode(startIsoCode);
+
     await fetch("http://127.0.0.1:3000/newplayer", {
         method: "POST",
         body: JSON.stringify({airport: airportData, playerName: playerName})
@@ -29,6 +30,12 @@ async function addPlayer() {
         const button = buttons[index]
         button.querySelector("p").textContent = value[1]
     })
+
+    fetch("http://127.0.0.1:3000/newplayer", {
+        method: "POST",
+        body: JSON.stringify({airport: airportData, playerName: playerName})
+    });
+
 }
 
 

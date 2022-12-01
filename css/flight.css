@@ -1,10 +1,11 @@
 #map{
     height: 500px;
-    /*width: 50%;*/
+
 }
 
 .leaflet-bottom.leaflet-right {
     display: none;
+
 }
 
 .container {

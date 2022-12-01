@@ -2,7 +2,7 @@ import random
 from flask_cors import CORS
 from flask import Flask, request
 import mysql.connector
-import requests
+
 
 
 connection = mysql.connector.connect(
@@ -10,7 +10,9 @@ connection = mysql.connector.connect(
     port=3306,
     database='flight_game1',
     user='root',
+
     password='Rommikola77',
+
     autocommit=True
 )
 cursor = connection.cursor(buffered=True)
@@ -19,11 +21,19 @@ class Player:
 
     def __init__(self, nimi, airport):
         cursor.execute("SELECT max(CAST(id AS INT)) FROM game")
+
         id_result = cursor.fetchone()[0]
         if id_result == None:
             self.id = 1
         else:
             self.id = int(id_result) + 1
+
+        id_result = cursor.fetchone()
+        if id_result == None:
+            self.id = 1
+        else:
+            self.id = id_result + 1
+
         self.nimi = nimi
         self.airport = airport
         self.co2 = 0
@@ -51,6 +61,7 @@ def new_player():
         player_data = request.get_json(force=True)
         print(player_data["playerName"])
         print(player_data)
+
         Player(player_data["playerName"], player_data["airport"])
         return {"status": "ok"}
 
@@ -72,6 +83,7 @@ def choose_airport(numero):
         else:
             airport_buttons.append(airport)
     return airport_buttons
+
 
 
 
