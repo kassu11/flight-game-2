@@ -3,36 +3,23 @@ from flask_cors import CORS
 from flask import Flask, request
 import mysql.connector
 
-
-
 connection = mysql.connector.connect(
     host='127.0.0.1',
     port=3306,
     database='flight_game1',
     user='root',
-
-    password='Rommikola77',
-
+    password='Salasana1',
     autocommit=True
 )
 cursor = connection.cursor(buffered=True)
 
 class Player:
-
     def __init__(self, nimi, airport):
         cursor.execute("SELECT max(CAST(id AS INT)) FROM game")
 
         id_result = cursor.fetchone()[0]
-        if id_result == None:
-            self.id = 1
-        else:
-            self.id = int(id_result) + 1
-
-        id_result = cursor.fetchone()
-        if id_result == None:
-            self.id = 1
-        else:
-            self.id = id_result + 1
+        if id_result == None: self.id = 1
+        else: self.id = int(id_result) + 1
 
         self.nimi = nimi
         self.airport = airport
@@ -83,9 +70,6 @@ def choose_airport(numero):
         else:
             airport_buttons.append(airport)
     return airport_buttons
-
-
-
 
 
 if __name__ == "__main__":
