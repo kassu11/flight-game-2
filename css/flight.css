@@ -1,4 +1,32 @@
 #map{
     height: 500px;
-    widht: 500px;
+    /*width: 50%;*/
+}
+
+.leaflet-bottom.leaflet-right {
+    display: none;
+}
+
+.container {
+    display:flex;
+    gap: 10px;
+
+}
+
+.container>div {
+    width: 200px;
+    flex-grow: 1;
+    position: relative;
+}
+
+.button {
+    border: 2px solid hotpink;
+    border-radius: 10px;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
 }
