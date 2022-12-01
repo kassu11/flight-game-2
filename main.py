@@ -6,13 +6,16 @@ from sql_connector import sql_connector
 connection = sql_connector()
 cursor = connection.cursor(buffered=True)
 
+
 class Player:
     def __init__(self, nimi, airport):
         cursor.execute("SELECT max(CAST(id AS INT)) FROM game")
 
         id_result = cursor.fetchone()[0]
-        if id_result == None: self.id = 1
-        else: self.id = int(id_result) + 1
+        if id_result == None:
+            self.id = 1
+        else:
+            self.id = int(id_result) + 1
 
         self.nimi = nimi
         self.airport = airport
@@ -21,10 +24,17 @@ class Player:
         self.co2max = 100000
 
 
-
 app = Flask(__name__)
 CORS(app)
 app.config["cors_headers"] = "content-type"
+
+
+@app.route("/tarkista-maakoodi/<maakoodi>")
+def check_country(maakoodi):
+    sql = f"SELECT iso_country FROM airport WHERE iso_country ='{maakoodi}';"
+    cursor.execute(sql)
+    result = cursor.fetchone()
+    return {"result": result != None, "isocode": maakoodi}
 
 
 @app.route("/code/<maakoodi>")
@@ -45,6 +55,7 @@ def new_player():
         Player(player_data["playerName"], player_data["airport"])
         return {"status": "ok"}
 
+
 cursor.execute("""
 select country.name, airport.name, ident, 
   latitude_deg, longitude_deg, type from 
@@ -52,14 +63,17 @@ select country.name, airport.name, ident,
       airport.iso_country = country.iso_country""")
 all_airports = cursor.fetchall()
 
+
 @app.route("/airport/<numero>")
 def choose_airport(numero):
     airport_buttons = []
     while len(airport_buttons) < int(numero):
         airport = random.choice(all_airports)
         for s_airport in airport_buttons:
-            if s_airport[0] == airport[0]: break
-            if airport[5] == "closed" and s_airport[5] == "closed": break
+            if s_airport[0] == airport[0]:
+                break
+            if airport[5] == "closed" and s_airport[5] == "closed":
+                break
         else:
             airport_buttons.append(airport)
     return airport_buttons
