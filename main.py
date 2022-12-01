@@ -1,16 +1,9 @@
 import random
 from flask_cors import CORS
 from flask import Flask, request
-import mysql.connector
+from sql_connector import sql_connector
 
-connection = mysql.connector.connect(
-    host='127.0.0.1',
-    port=3306,
-    database='flight_game1',
-    user='root',
-    password='Salasana1',
-    autocommit=True
-)
+connection = sql_connector()
 cursor = connection.cursor(buffered=True)
 
 class Player:

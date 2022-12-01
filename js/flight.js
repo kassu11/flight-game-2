@@ -36,7 +36,7 @@ async function addPlayer() {
 function updateMap(jsonAnswer) {
     const longitude_deg = jsonAnswer.longitude_deg
     const latitude_deg = jsonAnswer.latitude_deg
-    map.setView([latitude_deg, longitude_deg], 13);
+    map.setView([latitude_deg, longitude_deg], 5);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {attribution: ""}).addTo(map);
 
     L.marker([latitude_deg, longitude_deg]).addTo(map)
