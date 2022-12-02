@@ -41,6 +41,11 @@ def check_country(maakoodi):
 def get_country(maakoodi):
     sql = f"SELECT name, iso_country, municipality, latitude_deg, longitude_deg FROM airport WHERE iso_country='{maakoodi}';"
     cursor.execute(sql)
+    sql_answer = cursor.fetchall()
+    if len(sql_answer) == 0:
+        result = random.choice(all_airports)
+        return {"icao": result[1], "name": result[0], "municipality": result[2], "latitude_deg": result[3],
+                "longitude_deg": result[4]}
     result = random.choice(cursor.fetchall())
     return {"icao": result[1], "name": result[0], "municipality": result[2], "latitude_deg": result[3], "longitude_deg": result[4]}
 

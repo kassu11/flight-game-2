@@ -6,11 +6,23 @@ async function airportByIsocode(airportCountry) {
     updateMap(jsonAnswer)
     return jsonAnswer;
 }
+async function enterStartingCountry() {
+    const startIsoCode = prompt('Enter the starting country code:');
+    const isoResult = await fetch(`http://127.0.0.1:3000/tarkista-maakoodi/${startIsoCode}`)
+    const isoResultJson = await isoResult.json()
+    if (isoResultJson.result == false) {
+        const again = confirm("Isocode is not right, do you want to type a new one?")
+        if (again == true) {
+            return enterStartingCountry()
+        }
 
+    }
+    return startIsoCode
+}
 
 async function addPlayer() {
     const playerName = prompt("Enter your name :");
-    const startIsoCode = prompt('Enter the starting country code:');
+    const startIsoCode = await enterStartingCountry()
     const airportData = await airportByIsocode(startIsoCode);
 
     await fetch("http://127.0.0.1:3000/newplayer", {
