@@ -1,11 +1,8 @@
-
-
 const map = L.map('map')
 const allMarkers = []
 async function airportByIsocode(airportCountry) {
     const answer = await fetch(`http://127.0.0.1:3000/code/${airportCountry}`);
     const jsonAnswer = await answer.json();
-    console.log(jsonAnswer);
     updateMap(jsonAnswer)
     return jsonAnswer;
 }
@@ -23,16 +20,14 @@ async function addPlayer() {
     getNewAirports(6)
 }
 async function getNewAirports(numb){
-    console.error("uus rivi")
     const airportResponse = await fetch(`http://127.0.0.1:3000/airport/${numb}`)
     const airportResponseJson = await airportResponse.json()
-    const buttons = document.querySelectorAll('.button')
+    const buttons = document.querySelectorAll('.buttons button')
 
     airportResponseJson.forEach((value, index) => {
-        console.log(value,index, buttons[index])
         const button = buttons[index]
-        button.querySelector("p").textContent = value[1]
-        button.onclick=() =>{
+        button.querySelector("span").textContent = value[1]
+        button.onclick = () =>{
             removeAllMarkers()
             updateMap({longitude_deg:value[4], latitude_deg:value[3], name:value[1]}) 
             getNewAirports(numb)
@@ -56,10 +51,8 @@ function updateMap(jsonAnswer) {
 }
 
 function removeAllMarkers() {
-    allMarkers.forEach(marker => {
-        map.removeLayer(marker)
-    })
-    allMarkers.length = 0
+    allMarkers.forEach(marker => map.removeLayer(marker));
+    allMarkers.length = 0;
 }
 
 
