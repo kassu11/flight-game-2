@@ -21,4 +21,16 @@ Käytettyjä pycharm lisäosio
     <td>Flask-Cors</td>
     <td>3.0.10</td>
   </tr>
+  <tr>
+    <td>Geopy</td>
+    <td>2.2.0</td>
+  </tr>
+  <tr>
+    <td>Geopy</td>
+    <td>2.2.0</td>
+  </tr>
+  <tr>
+    <td>python-dotenv</td>
+    <td>0.21.0</td>
+  </tr>
 <table>

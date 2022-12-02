@@ -1,10 +1,21 @@
 import random
 from flask_cors import CORS
 from flask import Flask, request
-from sql_connector import sql_connector
 from geopy.distance import geodesic
+import mysql.connector
+from dotenv import load_dotenv
+import os
 
-connection = sql_connector()
+load_dotenv(".env")
+
+connection = mysql.connector.connect(
+    host='127.0.0.1',
+    port=3306,
+    database=os.environ.get("database"),
+    user=os.environ.get("user"),
+    password=os.environ.get("password"),
+    autocommit=True
+)
 cursor = connection.cursor(buffered=True)
 
 
