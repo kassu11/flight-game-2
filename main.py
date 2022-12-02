@@ -2,6 +2,7 @@ import random
 from flask_cors import CORS
 from flask import Flask, request
 from sql_connector import sql_connector
+from geopy.distance import geodesic
 
 connection = sql_connector()
 cursor = connection.cursor(buffered=True)
@@ -39,15 +40,14 @@ def check_country(maakoodi):
 
 @app.route("/code/<maakoodi>")
 def get_country(maakoodi):
-    sql = f"SELECT name, iso_country, municipality, latitude_deg, longitude_deg FROM airport WHERE iso_country='{maakoodi}';"
+    sql = f"select country.name, airport.name, ident, latitude_deg, longitude_deg, type from airport, country where airport.iso_country = country.iso_country and airport.iso_country='{maakoodi}';"
     cursor.execute(sql)
     sql_answer = cursor.fetchall()
     if len(sql_answer) == 0:
         result = random.choice(all_airports)
-        return {"icao": result[1], "name": result[0], "municipality": result[2], "latitude_deg": result[3],
-                "longitude_deg": result[4]}
-    result = random.choice(cursor.fetchall())
-    return {"icao": result[1], "name": result[0], "municipality": result[2], "latitude_deg": result[3], "longitude_deg": result[4]}
+        return list(result)
+    result = random.choice(sql_answer)
+    return list(result)
 
 
 @app.route("/newplayer", methods=["POST"])
@@ -59,6 +59,35 @@ def new_player():
 
         Player(player_data["playerName"], player_data["airport"])
         return {"status": "ok"}
+
+@app.route("/lake-lennon-tiedot", methods=["POST"])
+def laske_matka():
+    if request.method == "POST":
+        json_response = request.get_json(force=True)
+        alkukentta = json_response["alkuLentokentta"][3:5]
+        nykynen_kentta = json_response["loppuLentokentta"][3:5]
+        print(nykynen_kentta)
+        matka = geodesic(alkukentta,nykynen_kentta).km
+        points_by_type = {
+            "small_airport": 10,
+            "heliport": 15,
+            "closed": -15,
+            "medium_airport": 20,
+            "seaplane_base": 30,
+            "large_airport": 45,
+            "balloonport": 90,
+        }
+
+        conversion = matka / 1000
+        airport_type = json_response["loppuLentokentta"][5]
+        score = points_by_type[airport_type] - conversion
+        co2 = 2 * matka
+
+        return {"matka": round(matka), "score": round(score,2), "co2": round(co2)}
+
+
+
+
 
 
 cursor.execute("""
@@ -82,6 +111,7 @@ def choose_airport(numero):
         else:
             airport_buttons.append(airport)
     return airport_buttons
+
 
 
 if __name__ == "__main__":

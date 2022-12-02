@@ -1,13 +1,17 @@
 const map = L.map('map')
 const allMarkers = []
+let currentAirport = null
+
 async function airportByIsocode(airportCountry) {
     const answer = await fetch(`http://127.0.0.1:3000/code/${airportCountry}`);
     const jsonAnswer = await answer.json();
-    updateMap(jsonAnswer)
+    currentAirport = jsonAnswer
+    updateMap({longitude_deg:jsonAnswer[4], latitude_deg:jsonAnswer[3], name:jsonAnswer[1]})
     return jsonAnswer;
 }
 async function enterStartingCountry() {
     const startIsoCode = prompt('Enter the starting country code:');
+    if(startIsoCode.length == 0) return "random"
     const isoResult = await fetch(`http://127.0.0.1:3000/tarkista-maakoodi/${startIsoCode}`)
     const isoResultJson = await isoResult.json()
     if (isoResultJson.result == false) {
@@ -36,12 +40,17 @@ async function getNewAirports(numb){
     const airportResponseJson = await airportResponse.json()
     const buttons = document.querySelectorAll('.buttons button')
 
-    airportResponseJson.forEach((value, index) => {
+
+    airportResponseJson.forEach((airport, index) => {
         const button = buttons[index]
-        button.querySelector("span").textContent = value[1]
-        button.onclick = () =>{
+        button.querySelector("span").textContent = airport[1]
+        button.onclick = async () =>{
+            await fetch(`http://127.0.0.1:3000//lake-lennon-tiedot`, {
+                method: "POST",
+            body: JSON.stringify({"alkuLentokentta": currentAirport, "loppuLentokentta": airport})}).then(v => v.json() ).then(v => console.log(v))
+            currentAirport = airport
             removeAllMarkers()
-            updateMap({longitude_deg:value[4], latitude_deg:value[3], name:value[1]}) 
+            updateMap({longitude_deg:airport[4], latitude_deg:airport[3], name:airport[1]})
             getNewAirports(numb)
         }
     });
