@@ -1,5 +1,16 @@
 # flight-game-2
 
+## Enviroment passwords
+
+- Make `.env` file to the home directory
+- Copy this text to the file
+  ```env
+  database=flight_game
+  user=root
+  password=Salasana
+  ```
+- Change default values to your local mariaDB values 
+
 ## Packages
 
 Käytettyjä pycharm lisäosio
