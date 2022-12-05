@@ -1,3 +1,8 @@
+body {
+    font-family: "JetBrains Mono";
+    margin: 5px;
+}
+
 #map{
     height: 500px;
 
@@ -12,6 +17,7 @@
     gap: 10px;
 
 }
+
 
 .container > div {
     width: 200px;
@@ -32,4 +38,32 @@
     flex-direction: column;
     gap: 10px;
     text-align: center;
+}
+
+.infoContainer {
+    border: 2px solid chocolate;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 15px;
+    margin-top: 0px;
+    display:flex;
+    gap: 10px;
+    flex-direction: column;
+
+}
+
+.column {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: space-between;
+    text-align: center;
+}
+
+.column > span {
+    font-weight: bold;
+}
+
+.column .text {
+    font-weight: normal;
 }

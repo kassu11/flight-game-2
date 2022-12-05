@@ -9,8 +9,21 @@
     <title>Flight Game 2</title>
     <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" defer></script>
     <script src="./js/flight.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
+<div class="infoContainer">
+    <div class="column">
+        <span id="player">Pelaaja: <span class="text"></span></span>
+        <span id="score">Pisteet: <span class="text"></span></span>
+    </div>
+    <div class="column">
+        <span id="totalCo2">Co2 päästöt: <span class="text"></span></span>
+        <span id="airport">Lentokenttä: <span class="text"></span></span>
+    </div>
+</div>
 <div class="container">
     <div id="map"></div>
     <div class="buttons">
