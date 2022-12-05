@@ -5,6 +5,8 @@ from geopy.distance import geodesic
 import mysql.connector
 from dotenv import load_dotenv
 import os
+import json
+
 
 load_dotenv(".env")
 
@@ -21,24 +23,54 @@ cursor = connection.cursor(buffered=True)
 
 class Player:
     def __init__(self, nimi, airport):
-        cursor.execute("SELECT max(CAST(id AS INT)) FROM game")
 
-        id_result = cursor.fetchone()[0]
-        if id_result == None:
-            self.id = 1
-        else:
-            self.id = int(id_result) + 1
+        # cursor.execute("SELECT max(CAST(id AS INT)) FROM game")
+
+        # id_result = cursor.fetchone()[0]
+        # if id_result == None:
+        #     self.id = 1
+        # else:
+        #     self.id = int(id_result) + 1
+        self.id = 1
+        if len(players_list) > 0:
+            print("rivi 34", players_list[-1])
+            self.id = players_list[-1].id + 1
 
         self.nimi = nimi
         self.airport = airport
         self.co2 = 0
         self.score = 0
         self.co2max = 100000
+        self.matka = 0
 
 
 app = Flask(__name__)
 CORS(app)
 app.config["cors_headers"] = "content-type"
+
+
+@app.route("/matkusta", methods=["POST"])
+def matkustaa():
+    if request.method == "POST":
+        player_data = request.get_json(force=True)
+        # print(player_data["playerName"])
+        # print(player_data)
+
+        player_object = None
+
+        for player in players_list:
+            if player_data["playerId"] == player.id:
+                player_object = player
+                break
+        if player_object != None:
+            player_object.matka += player_data["matka"]
+            player_object.co2 += player_data["co2"]
+            player_object.score = round(
+                player_object.score + player_data["score"], 1)
+            player_object.airport = player_data["airport"]
+            return player_object.__dict__
+
+        return {"status": "Error"}
 
 
 @app.route("/tarkista-maakoodi/<maakoodi>")
@@ -61,24 +93,31 @@ def get_country(maakoodi):
     return list(result)
 
 
+players_list = []
+
+
 @app.route("/newplayer", methods=["POST"])
 def new_player():
+
     if request.method == "POST":
         player_data = request.get_json(force=True)
+        player = Player(player_data["playerName"], player_data["airport"])
+        players_list.append(player)
+
         print(player_data["playerName"])
         print(player_data)
+        print(players_list)
+        return player.__dict__
 
-        Player(player_data["playerName"], player_data["airport"])
-        return {"status": "ok"}
 
-@app.route("/lake-lennon-tiedot", methods=["POST"])
+@app.route("/laske-lennon-tiedot", methods=["POST"])
 def laske_matka():
     if request.method == "POST":
         json_response = request.get_json(force=True)
         alkukentta = json_response["alkuLentokentta"][3:5]
         nykynen_kentta = json_response["loppuLentokentta"][3:5]
         print(nykynen_kentta)
-        matka = geodesic(alkukentta,nykynen_kentta).km
+        matka = geodesic(alkukentta, nykynen_kentta).km
         points_by_type = {
             "small_airport": 10,
             "heliport": 15,
@@ -94,11 +133,7 @@ def laske_matka():
         score = points_by_type[airport_type] - conversion
         co2 = 2 * matka
 
-        return {"matka": round(matka), "score": round(score,2), "co2": round(co2)}
-
-
-
-
+        return {"matka": round(matka), "score": round(score, 2), "co2": round(co2)}
 
 
 cursor.execute("""
@@ -122,7 +157,6 @@ def choose_airport(numero):
         else:
             airport_buttons.append(airport)
     return airport_buttons
-
 
 
 if __name__ == "__main__":
