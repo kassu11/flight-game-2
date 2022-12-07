@@ -5,7 +5,6 @@ body {
 
 #map{
     height: 500px;
-
 }
 
 .leaflet-bottom.leaflet-right {
@@ -39,6 +38,21 @@ body {
     gap: 10px;
     text-align: center;
 }
+
+.buttons.disabled button {
+    cursor: unset;
+    border: 2px solid black;
+}
+.buttons.disabled button:not(.selected) {
+    background-color: #333;
+    color: white;
+    opacity: .5;
+} 
+
+.buttons.disabled button.selected {
+    background-color: lime;
+    color: black;
+} 
 
 .infoContainer {
     border: 2px solid chocolate;

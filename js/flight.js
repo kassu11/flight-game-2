@@ -8,6 +8,8 @@ Number.prototype.formatNumbers = function(e) {
       slice(1);
 };
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 async function airportByIsocode(airportCountry) {
   const answer = await fetch(`http://127.0.0.1:3000/code/${airportCountry}`);
   const jsonAnswer = await answer.json();
@@ -73,47 +75,89 @@ async function getNewAirports(numb) {
           },
       );
       const calculateJson = await calculateResponse.json();
-      console.log(calculateJson.score);
-      const playerResponse = await fetch(`http://127.0.0.1:3000/matkusta`, {
-        method: 'POST',
-        body: JSON.stringify({
-          matka: calculateJson.matka,
-          score: calculateJson.score,
-          co2: calculateJson.co2,
-          playerId: currentPlayer.id,
-          airport,
-        }),
-      });
+      showAllMapResults(airportResponseJson, airport);
 
-      const playerJson = await playerResponse.json();
-      currentPlayer = playerJson;
-      console.log(currentPlayer);
+      buttons.forEach(button => button.onclick = null);
+      document.querySelector('.buttons').classList.add("disabled");
+      button.classList.add("selected");
+
+      await postPlayerFlight(airport, calculateJson)
       updatePlayerInterface(currentPlayer);
-      currentAirport = airport;
+      await sleep(3000);
+
+      document.querySelector('.buttons').classList.remove("disabled");
+      button.classList.remove("selected");
+    
       removeAllMarkers();
       updateMap({
         longitude_deg: airport[4],
         latitude_deg: airport[3],
         name: airport[1],
       });
-      if(currentPlayer.co2 >= currentPlayer.co2max) endGame()
+      if(currentPlayer.co2 >= currentPlayer.co2max) endGame();
       else getNewAirports(numb);
-      
-
-
     };
   });
 }
 
-async function saveGame(){
-  const updateResponse = await fetch(`http://127.0.0.1:3000/save`, {
+async function postPlayerFlight(airport, stats) {
+  const playerResponse = await fetch(`http://127.0.0.1:3000/matkusta`, {
     method: 'POST',
-    body: JSON.stringify(currentPlayer)
-  })
-  const updateJson = await updateResponse.json()
+    body: JSON.stringify({
+      matka: stats.matka,
+      score: stats.score,
+      co2: stats.co2,
+      playerId: currentPlayer.id,
+      airport,
+    }),
+  });
+
+  const playerJson = await playerResponse.json();
+  currentPlayer = playerJson;
+  currentAirport = airport;
 }
 
-function endGame(){
+function showAllMapResults(airportSelection, selectedAirport) {
+  const allAirPorts = [...airportSelection, currentAirport]
+  const arrayOfMarkers = allAirPorts.map(airport => {
+    return [airport[3], airport[4]]
+  });
+
+  removeAllMarkers();
+
+  const bounds = new L.LatLngBounds(arrayOfMarkers);
+  map.fitBounds(bounds, {padding: [25, 25]});
+  
+  const startPoint = new L.LatLng(currentAirport[3], currentAirport[4]);
+  allAirPorts.forEach(airport => {
+    const longitude_deg = airport[4]
+    const latitude_deg = airport[3]
+    const endPoint = new L.LatLng(airport[3], airport[4]);
+
+    const isSelected = selectedAirport === airport;
+
+    const firstpolyline = new L.Polyline([startPoint, endPoint], {
+      color: isSelected ? "#60f542" : "red",
+      weight: isSelected ? 3 : 2,
+      opacity: isSelected ? 1 : .5,
+      smoothFactor: 1
+    });
+    allMarkers.push(firstpolyline)
+    firstpolyline.addTo(map);
+  
+    const marker = L.marker([latitude_deg, longitude_deg]).addTo(map);
+    allMarkers.push(marker);
+  });
+}
+
+function saveGame(){
+  fetch(`http://127.0.0.1:3000/save`, {
+    method: 'POST',
+    body: JSON.stringify(currentPlayer)
+  });
+}
+
+async function endGame(){
   const lopettaa = confirm("haluatko jatkaa peliä")
   if(lopettaa) addPlayer()
   else { 

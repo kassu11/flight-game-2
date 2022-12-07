@@ -23,17 +23,8 @@ cursor = connection.cursor(buffered=True)
 
 class Player:
     def __init__(self, nimi, airport):
-
-        # cursor.execute("SELECT max(CAST(id AS INT)) FROM game")
-
-        # id_result = cursor.fetchone()[0]
-        # if id_result == None:
-        #     self.id = 1
-        # else:
-        #     self.id = int(id_result) + 1
         self.id = 1
         if len(players_list) > 0:
-            print("rivi 34", players_list[-1])
             self.id = players_list[-1].id + 1
 
         self.nimi = nimi
@@ -163,6 +154,11 @@ def choose_airport(numero):
             if s_airport[0] == airport[0]:
                 break
             if airport[5] == "closed" and s_airport[5] == "closed":
+                break
+            alkukentta = airport_buttons[-1][3:5]
+            nykynen_kentta = airport[3:5]
+            matka = geodesic(alkukentta, nykynen_kentta).km
+            if matka > 5000:
                 break
         else:
             airport_buttons.append(airport)
