@@ -7,6 +7,40 @@ body {
     height: 500px;
 }
 
+#map .customMarker::before {
+    content: "";
+    position: absolute;
+    background-color: rgb(255, 168, 168);
+    width: 10px;
+    height: 10px;
+    left: calc(50% - 3px);
+    transform: translateX(-50%);
+    border-radius: 50% 50% 50% 0px;
+    border: 2px solid black;
+    rotate: -45deg;
+    bottom: 100%;
+}
+
+#map .customMarker.current::before {
+    background-color: rgb(141, 141, 141);
+}
+#map .customMarker.headed::before {
+    background-color: rgb(150, 255, 145);
+}
+
+
+#map .customMarker::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background-color: black;
+    width: 4px;
+    height: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 100%;
+}
+
 .leaflet-bottom.leaflet-right {
     display: none;
 }

@@ -60,6 +60,8 @@ async function getNewAirports(numb) {
   const airportResponseJson = await airportResponse.json();
   const buttons = document.querySelectorAll('.buttons button');
 
+  console.log("getNewAirports")
+
   airportResponseJson.forEach((airport, index) => {
     const button = buttons[index];
     button.querySelector('span').textContent = airport[1];
@@ -83,7 +85,7 @@ async function getNewAirports(numb) {
 
       await postPlayerFlight(airport, calculateJson)
       updatePlayerInterface(currentPlayer);
-      await sleep(3000);
+      await sleep(2500);
 
       document.querySelector('.buttons').classList.remove("disabled");
       button.classList.remove("selected");
@@ -127,13 +129,18 @@ function showAllMapResults(airportSelection, selectedAirport) {
 
   const bounds = new L.LatLngBounds(arrayOfMarkers);
   map.fitBounds(bounds, {padding: [25, 25]});
-  
   const startPoint = new L.LatLng(currentAirport[3], currentAirport[4]);
+
+  
   allAirPorts.forEach(airport => {
     const longitude_deg = airport[4]
     const latitude_deg = airport[3]
     const endPoint = new L.LatLng(airport[3], airport[4]);
-
+    let className = "customMarker";
+    if(airport == selectedAirport) className += " headed";
+    else if(airport == currentAirport) className += " current";
+    const icon = L.divIcon({className});
+    
     const isSelected = selectedAirport === airport;
 
     const firstpolyline = new L.Polyline([startPoint, endPoint], {
@@ -145,7 +152,7 @@ function showAllMapResults(airportSelection, selectedAirport) {
     allMarkers.push(firstpolyline)
     firstpolyline.addTo(map);
   
-    const marker = L.marker([latitude_deg, longitude_deg]).addTo(map);
+    const marker = L.marker([latitude_deg, longitude_deg], {icon: icon}).addTo(map);
     allMarkers.push(marker);
   });
 }
@@ -158,13 +165,9 @@ function saveGame(){
 }
 
 async function endGame(){
-  const lopettaa = confirm("haluatko jatkaa peliä")
-  if(lopettaa) addPlayer()
-  else { 
-    const buttons = document.querySelectorAll('.buttons button')
-    buttons.forEach(button => button.onclick = null)
-  } 
-  saveGame()
+  saveGame();
+  const startAgain = confirm("haluatko aloittaa uuden pelin?")
+  if(startAgain) addPlayer()
 }
 
 function updatePlayerInterface(player) {
