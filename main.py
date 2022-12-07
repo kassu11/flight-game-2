@@ -49,6 +49,16 @@ CORS(app)
 app.config["cors_headers"] = "content-type"
 
 
+def add_score_column():
+  sql = 'SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = "game" AND COLUMN_NAME = "score";'
+  cursor.execute(sql)
+  result = cursor.fetchall()
+  if len(result) == 0: # If score column does not exist, create it
+    cursor.execute("delete from goal_reached")
+    cursor.execute("delete from game")
+    cursor.execute("alter table game add score int")
+
+
 @app.route("/matkusta", methods=["POST"])
 def matkustaa():
     if request.method == "POST":
@@ -158,6 +168,26 @@ def choose_airport(numero):
             airport_buttons.append(airport)
     return airport_buttons
 
+
+
+@app.route("/save", methods=["POST"])
+def update_sql():
+    if request.method == "POST":
+        id = 1
+        json_response = request.get_json(force=True)
+        cursor.execute("SELECT max(CAST(id AS INT)) FROM game")
+        id_result = cursor.fetchone()[0]
+        if id_result != None:
+            id = int(id_result) + 1
+            
+        cursor.execute( f"""insert into game(id, screen_name, score, co2_consumed)
+        value ({id}, "{json_response["nimi"]}", {json_response["score"]}, {json_response["co2"]})""")
+
+        return {"status":"Ok"}
+
+
+
+add_score_column()
 
 if __name__ == "__main__":
     app.run(use_reloader=True, host="127.0.0.1", port=3000)

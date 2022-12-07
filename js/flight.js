@@ -96,9 +96,31 @@ async function getNewAirports(numb) {
         latitude_deg: airport[3],
         name: airport[1],
       });
-      getNewAirports(numb);
+      if(currentPlayer.co2 >= currentPlayer.co2max) endGame()
+      else getNewAirports(numb);
+      
+
+
     };
   });
+}
+
+async function saveGame(){
+  const updateResponse = await fetch(`http://127.0.0.1:3000/save`, {
+    method: 'POST',
+    body: JSON.stringify(currentPlayer)
+  })
+  const updateJson = await updateResponse.json()
+}
+
+function endGame(){
+  const lopettaa = confirm("haluatko jatkaa peliä")
+  if(lopettaa) addPlayer()
+  else { 
+    const buttons = document.querySelectorAll('.buttons button')
+    buttons.forEach(button => button.onclick = null)
+  } 
+  saveGame()
 }
 
 function updatePlayerInterface(player) {
