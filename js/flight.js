@@ -168,6 +168,25 @@ async function endGame(){
   saveGame();
   const startAgain = confirm("haluatko aloittaa uuden pelin?")
   if(startAgain) addPlayer()
+  else scoreBoard()
+}
+
+async function scoreBoard() {
+  const scoreboardResponse = await fetch(`http://127.0.0.1:3000/scoreboard/`)
+  const scoreboardJson = await scoreboardResponse.json()
+  console.log(scoreboardJson)
+  const tbodySelect = document.querySelector("tbody")
+  scoreboardJson.forEach(row => {
+    const tableRow = document.createElement("tr")
+    row.forEach(value => {
+      const column = document.createElement("td")
+      column.textContent = value
+      tableRow.append(column)
+    })
+    tbodySelect.append(tableRow)
+  })
+  document.querySelector("#scoreboard").style.display=null
+  document.querySelector("#game").style.display="none"
 }
 
 function updatePlayerInterface(player) {

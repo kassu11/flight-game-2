@@ -182,6 +182,12 @@ def update_sql():
         return {"status":"Ok"}
 
 
+@app.route("/scoreboard/")
+def send_scoreboard():
+    sql = "select screen_name, score, co2_consumed from game order by score desc limit 100;"
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    return result
 
 add_score_column()
 

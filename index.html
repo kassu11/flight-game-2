@@ -14,26 +14,48 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="infoContainer">
-    <div class="column">
-        <span id="player">Pelaaja: <span class="text"></span></span>
-        <span id="score">Pisteet: <span class="text"></span></span>
+<div class="mainContainer">
+    <div id="game">
+        <div class="infoContainer">
+            <div class="column">
+                <span id="player">Pelaaja: <span class="text"></span></span>
+                <span id="score">Pisteet: <span class="text"></span></span>
+            </div>
+            <div class="column">
+                <span id="totalCo2">Co2 päästöt: <span class="text"></span></span>
+                <span id="airport">Lentokenttä: <span class="text"></span></span>
+            </div>
+        </div>
+        <div class="container">
+            <div id="map"></div>
+            <div class="buttons">
+                <button><span>Nappi 1</span></button>
+                <button><span>Nappi 2</span></button>
+                <button><span>Nappi 3</span></button>
+                <button><span>Nappi 4</span></button>
+                <button><span>Nappi 5</span></button>
+                <button><span>Nappi 6</span></button>
+            </div>
+        </div>
     </div>
-    <div class="column">
-        <span id="totalCo2">Co2 päästöt: <span class="text"></span></span>
-        <span id="airport">Lentokenttä: <span class="text"></span></span>
+    <div id="scoreboard" style="display: none">
+        <table>
+            <thead>
+            <tr>
+                <th>Nimi</th>
+                <th>Pisteet</th>
+                <th>Co2</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
     </div>
-</div>
-<div class="container">
-    <div id="map"></div>
-    <div class="buttons">
-        <button><span>Nappi 1</span></button>
-        <button><span>Nappi 2</span></button>
-        <button><span>Nappi 3</span></button>
-        <button><span>Nappi 4</span></button>
-        <button><span>Nappi 5</span></button>
-        <button><span>Nappi 6</span></button>
-    </div>
+
+    <div id="mainMenu"></div>
+
+
 </div>
 </body>
 </html>
