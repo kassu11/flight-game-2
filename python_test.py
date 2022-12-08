@@ -1,5 +1,18 @@
 print("Testi")
+@app.route("/save", methods=["POST"])
+def update_sql():
+    if request.method == "POST":
+        id = 1
+        json_response = request.get_json(force=True)
+        cursor.execute("SELECT max(CAST(id AS INT)) FROM game")
+        id_result = cursor.fetchone()[0]
+        if id_result != None:
+            id = int(id_result) + 1
+            
+        cursor.execute( f"""insert into game(id, screen_name, score, co2_consumed)
+        value ({id}, "{json_response["nimi"]}", {json_response["score"]}, {json_response["co2"]})""")
 
+        return {"status":"Ok", "id":id}
 
 @app.route("/code/<maakoodi>")
 def get_country(maakoodi):
