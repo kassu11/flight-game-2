@@ -115,3 +115,11 @@ body {
 .column .text {
     font-weight: normal;
 }
+
+thead {
+    text-align: left;
+}
+
+tr.selected {
+    background-color: green;
+}

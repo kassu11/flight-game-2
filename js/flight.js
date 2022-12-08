@@ -8,11 +8,16 @@ Number.prototype.formatNumbers = function(e) {
       slice(1);
 };
 
+async function fetchJson(url, param={}) {
+  const fetchResponse = await fetch(url, param)
+  const jsonData = await fetchResponse.json()
+  return jsonData
+}
+
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function airportByIsocode(airportCountry) {
-  const answer = await fetch(`http://127.0.0.1:3000/code/${airportCountry}`);
-  const jsonAnswer = await answer.json();
+  const jsonAnswer = await fetchJson(`http://127.0.0.1:3000/code/${airportCountry}`);
   currentAirport = jsonAnswer;
   updateMap({
     longitude_deg: jsonAnswer[4],
@@ -25,10 +30,9 @@ async function airportByIsocode(airportCountry) {
 async function enterStartingCountry() {
   const startIsoCode = prompt('Enter the starting country code:');
   if (startIsoCode.length == 0) return 'random';
-  const isoResult = await fetch(
+  const isoResultJson = await fetchJson(
       `http://127.0.0.1:3000/tarkista-maakoodi/${startIsoCode}`,
   );
-  const isoResultJson = await isoResult.json();
   if (isoResultJson.result == false) {
     const again = confirm(
         'Isocode is not right, do you want to type a new one?',
@@ -45,19 +49,17 @@ async function addPlayer() {
   const startIsoCode = await enterStartingCountry();
   const airportData = await airportByIsocode(startIsoCode);
 
-  const playerResponse = await fetch('http://127.0.0.1:3000/newplayer', {
+  const playerJson = await fetchJson('http://127.0.0.1:3000/newplayer', {
     method: 'POST',
     body: JSON.stringify({airport: airportData, playerName: playerName}),
   });
-  const playerJson = await playerResponse.json();
   console.log(playerJson);
   currentPlayer = playerJson;
   getNewAirports(6);
 }
 
 async function getNewAirports(numb) {
-  const airportResponse = await fetch(`http://127.0.0.1:3000/airport/${numb}`);
-  const airportResponseJson = await airportResponse.json();
+  const airportResponseJson = await fetchJson(`http://127.0.0.1:3000/airport/${numb}`);
   const buttons = document.querySelectorAll('.buttons button');
 
   console.log("getNewAirports")
@@ -66,7 +68,7 @@ async function getNewAirports(numb) {
     const button = buttons[index];
     button.querySelector('span').textContent = airport[1];
     button.onclick = async () => {
-      const calculateResponse = await fetch(
+      const calculateJson = await fetchJson(
           `http://127.0.0.1:3000/laske-lennon-tiedot`,
           {
             method: 'POST',
@@ -76,7 +78,6 @@ async function getNewAirports(numb) {
             }),
           },
       );
-      const calculateJson = await calculateResponse.json();
       showAllMapResults(airportResponseJson, airport);
 
       buttons.forEach(button => button.onclick = null);
@@ -85,7 +86,7 @@ async function getNewAirports(numb) {
 
       await postPlayerFlight(airport, calculateJson)
       updatePlayerInterface(currentPlayer);
-      await sleep(2500);
+      //await sleep(2500);
 
       document.querySelector('.buttons').classList.remove("disabled");
       button.classList.remove("selected");
@@ -103,7 +104,7 @@ async function getNewAirports(numb) {
 }
 
 async function postPlayerFlight(airport, stats) {
-  const playerResponse = await fetch(`http://127.0.0.1:3000/matkusta`, {
+  const playerJson = await fetchJson(`http://127.0.0.1:3000/matkusta`, {
     method: 'POST',
     body: JSON.stringify({
       matka: stats.matka,
@@ -114,7 +115,6 @@ async function postPlayerFlight(airport, stats) {
     }),
   });
 
-  const playerJson = await playerResponse.json();
   currentPlayer = playerJson;
   currentAirport = airport;
 }
@@ -157,8 +157,8 @@ function showAllMapResults(airportSelection, selectedAirport) {
   });
 }
 
-function saveGame(){
-  fetch(`http://127.0.0.1:3000/save`, {
+async function saveGame(){
+  const {id} = await fetchJson(`http://127.0.0.1:3000/save`, {
     method: 'POST',
     body: JSON.stringify(currentPlayer)
   });
@@ -168,16 +168,36 @@ async function endGame(){
   saveGame();
   const startAgain = confirm("haluatko aloittaa uuden pelin?")
   if(startAgain) addPlayer()
-  else scoreBoard()
+  else scoreboardById(5)
 }
 
 async function scoreBoard() {
-  const scoreboardResponse = await fetch(`http://127.0.0.1:3000/scoreboard/`)
-  const scoreboardJson = await scoreboardResponse.json()
+  const scoreboardJson = await fetchJson(`http://127.0.0.1:3000/scoreboard/`)
   console.log(scoreboardJson)
   const tbodySelect = document.querySelector("tbody")
   scoreboardJson.forEach(row => {
     const tableRow = document.createElement("tr")
+    row.forEach(value => {
+      const column = document.createElement("td")
+      column.textContent = value
+      tableRow.append(column)
+    })
+    tbodySelect.append(tableRow)
+  })
+  document.querySelector("#scoreboard").style.display=null
+  document.querySelector("#game").style.display="none"
+}
+
+async function scoreboardById(id) {
+  const {playerList, startIndex} = await fetchJson(`http://127.0.0.1:3000/scoreboard/${id}`)
+  console.log(playerList)
+  const tbodySelect = document.querySelector("tbody")
+  playerList.forEach((row, index) => {
+    const tableRow = document.createElement("tr")
+    if (row[0] == id) {
+      tableRow.classList.add("selected")
+    }
+    row[0] = startIndex + index
     row.forEach(value => {
       const column = document.createElement("td")
       column.textContent = value
