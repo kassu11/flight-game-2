@@ -60,13 +60,14 @@ async function addPlayer() {
 
 async function getNewAirports(numb) {
   const airportResponseJson = await fetchJson(`http://127.0.0.1:3000/airport/${numb}`);
-  const buttons = document.querySelectorAll('.buttons button');
+  const buttons = document.querySelectorAll('.buttons tr.button');
 
   console.log("getNewAirports")
 
   airportResponseJson.forEach((airport, index) => {
     const button = buttons[index];
-    button.querySelector('span').textContent = airport[1];
+    button.querySelector("td.country").textContent = `${airport[0]}`;
+    button.querySelector("td.airport").textContent = airport[1];
     button.onclick = async () => {
       const calculateJson = await fetchJson(
           `http://127.0.0.1:3000/laske-lennon-tiedot`,
@@ -86,7 +87,7 @@ async function getNewAirports(numb) {
 
       await postPlayerFlight(airport, calculateJson)
       updatePlayerInterface(currentPlayer);
-      //await sleep(2500);
+      await sleep(2500);
 
       document.querySelector('.buttons').classList.remove("disabled");
       button.classList.remove("selected");
@@ -144,7 +145,7 @@ function showAllMapResults(airportSelection, selectedAirport) {
     const isSelected = selectedAirport === airport;
 
     const firstpolyline = new L.Polyline([startPoint, endPoint], {
-      color: isSelected ? "#60f542" : "red",
+      color: isSelected ? "#22d3ee" : "#164e63",
       weight: isSelected ? 3 : 2,
       opacity: isSelected ? 1 : .5,
       smoothFactor: 1
@@ -168,13 +169,13 @@ async function endGame(){
   saveGame();
   const startAgain = confirm("haluatko aloittaa uuden pelin?")
   if(startAgain) addPlayer()
-  else scoreboardById(5)
+  else scoreboardById(111)
 }
 
 async function scoreBoard() {
   const scoreboardJson = await fetchJson(`http://127.0.0.1:3000/scoreboard/`)
   console.log(scoreboardJson)
-  const tbodySelect = document.querySelector("tbody")
+  const tbodySelect = document.querySelector("#scoreboard tbody")
   scoreboardJson.forEach(row => {
     const tableRow = document.createElement("tr")
     row.forEach(value => {
@@ -191,7 +192,7 @@ async function scoreBoard() {
 async function scoreboardById(id) {
   const {playerList, startIndex} = await fetchJson(`http://127.0.0.1:3000/scoreboard/${id}`)
   console.log(playerList)
-  const tbodySelect = document.querySelector("tbody")
+  const tbodySelect = document.querySelector("#scoreboard tbody")
   playerList.forEach((row, index) => {
     const tableRow = document.createElement("tr")
     if (row[0] == id) {
@@ -223,12 +224,11 @@ function updatePlayerInterface(player) {
 function updateMap(jsonAnswer) {
   const longitude_deg = jsonAnswer.longitude_deg;
   const latitude_deg = jsonAnswer.latitude_deg;
+  const icon = L.divIcon({className: "customMarker current"});
   map.setView([latitude_deg, longitude_deg], 5);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '',
-  }).addTo(map);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-  const marker = L.marker([latitude_deg, longitude_deg]).
+  const marker = L.marker([latitude_deg, longitude_deg], {icon: icon}).
       addTo(map).
       bindPopup(jsonAnswer.name).
       openPopup();

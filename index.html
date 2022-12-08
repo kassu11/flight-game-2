@@ -9,10 +9,7 @@
     <title>Flight Game 2</title>
     <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" defer></script>
     <script src="./js/flight.js" defer></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
-</head>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=JetBrains+Mono:wght@100;400;500;600;700&display=swap" rel="stylesheet"></head>
 <body>
 <div class="mainContainer">
     <div id="game">
@@ -26,15 +23,37 @@
                 <span id="airport">Lentokenttä: <span class="text"></span></span>
             </div>
         </div>
-        <div class="container">
+        <div class="mapContainer">
             <div id="map"></div>
             <div class="buttons">
-                <button><span>Nappi 1</span></button>
-                <button><span>Nappi 2</span></button>
-                <button><span>Nappi 3</span></button>
-                <button><span>Nappi 4</span></button>
-                <button><span>Nappi 5</span></button>
-                <button><span>Nappi 6</span></button>
+                <table>
+                    <tbody>
+                        <tr class="button">
+                            <td class="country"></td>
+                            <td class="airport"></td>
+                        </tr>
+                        <tr class="button">
+                            <td class="country"></td>
+                            <td class="airport"></td>
+                        </tr>
+                        <tr class="button">
+                            <td class="country"></td>
+                            <td class="airport"></td>
+                        </tr>
+                        <tr class="button">
+                            <td class="country"></td>
+                            <td class="airport"></td>
+                        </tr>
+                        <tr class="button">
+                            <td class="country"></td>
+                            <td class="airport"></td>
+                        </tr>
+                        <tr class="button">
+                            <td class="country"></td>
+                            <td class="airport"></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -48,9 +67,7 @@
                 <th>Co2</th>
             </tr>
             </thead>
-            <tbody>
-
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 
