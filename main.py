@@ -119,24 +119,6 @@ def laske_matka():
         nykynen_kentta = json_response["loppuLentokentta"][3:5]
         airport_type = json_response["loppuLentokentta"][5]
         return calculate_flight_info(alkukentta, nykynen_kentta, airport_type)
-        # print(nykynen_kentta)
-        # matka = geodesic(alkukentta, nykynen_kentta).km
-        # points_by_type = {
-        #     "small_airport": 10,
-        #     "heliport": 15,
-        #     "closed": -15,
-        #     "medium_airport": 20,
-        #     "seaplane_base": 30,
-        #     "large_airport": 45,
-        #     "balloonport": 90,
-        # }
-
-        # conversion = matka / 1000
-        # airport_type = json_response["loppuLentokentta"][5]
-        # score = points_by_type[airport_type] - conversion
-        # co2 = 2 * matka
-
-        # return {"matka": round(matka), "score": round(score, 2), "co2": round(co2)}
 
 
 def calculate_flight_info(start_airport, end_airport, type_of_airport):
