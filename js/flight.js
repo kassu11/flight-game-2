@@ -2,6 +2,7 @@ const map = L.map('map');
 const allMarkers = [];
 let currentAirport = null;
 let currentPlayer = null;
+const flightPath = [];
 
 Number.prototype.formatNumbers = function(e) {
   return this.toLocaleString('ja-JP', {style: 'currency', currency: 'JPY'}).
@@ -61,10 +62,12 @@ async function addPlayer() {
 async function getNewAirports(numb) {
   const airportResponseJson = await fetchJson(`http://127.0.0.1:3000/airport/${numb}`);
   const buttons = document.querySelectorAll('.buttons tr.button');
+  flightPath.push([airportResponseJson])
 
   console.log("getNewAirports")
 
   airportResponseJson.forEach((airport, index) => {
+    console.log(flightPath)
     const button = buttons[index];
     button.querySelector("td.country").textContent = `${airport[0]}`;
     button.querySelector("td.airport").textContent = airport[1];
