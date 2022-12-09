@@ -180,13 +180,12 @@ def choose_airport(numero):
 def best_flight_path():
     if request.method == "POST":
         json_response = request.get_json(force=True)
-        length = len(json_response.flightPaths) - 3
+        length = len(json_response["flightPaths"]) - 2
         for i in range(length):
+            global max_score
+            global best_path
             max_score = None
             best_path = None
-
-            loop(json_response.flightPaths[i+1:i+3], json_response.flightPaths[i][0], 0, [])
-            if len(best_path) > 1: json_response.flightPaths[i+1] = [best_path[1]]
 
             def loop(arr, current, score, path):
                 global max_score 
@@ -196,12 +195,23 @@ def best_flight_path():
                         max_score = score
                         best_path = path
                     return
-                for rivi in arr:
+                for rivi in arr[0]:
                     end = rivi[0:2]
-                    stats = calculate_flight_info(current, end, rivi[3])
+                    stats = calculate_flight_info(current, end, rivi[2])
                     path = copy.deepcopy(path)
                     path.append(rivi)
-                    return loop(arr[1:], end, score + stats["score"], path)                
+                    return loop(arr[1:], end, score + stats["score"], path) 
+
+            loop(json_response["flightPaths"][i+1:i+3], json_response["flightPaths"][i][0][0:2], 0, [])
+            if len(best_path) > 1: json_response["flightPaths"][i+1] = [best_path[1]]
+
+        score = None
+        for airport in json_response["flightPaths"][-1]:
+            stats = calculate_flight_info(json_response["flightPaths"][-2][0][0:2], airport[0:2], airport[2])
+            if score == None or score < stats["score"]:
+                score = stats["score"]
+                json_response["flightPaths"][-1] = [airport]
+
         return json_response
     
 

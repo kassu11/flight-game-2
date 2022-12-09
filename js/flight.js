@@ -174,11 +174,18 @@ async function saveGame(){
 async function endGame(){
   const playerId = await saveGame();
   const startAgain = confirm("haluatko aloittaa uuden pelin?")
-  const bestPath = fetchJson("http://127.0.0.1:3000/best-flight-path", {
-    flightPaths: flightPath.map(row => row.map(airport => {
-      return airport.slice(3, 6)
-    }))
-  })
+  const flightPaths = flightPath.map(row => row.map(airport => {
+    return airport.slice(3, 6)
+  }));
+  console.log(JSON.stringify(flightPaths));
+  const bestPath = await fetchJson("http://127.0.0.1:3000/best-flight-path", {
+    method: 'POST',
+    body: JSON.stringify({
+      flightPaths
+    })
+  });
+
+  console.log(bestPath)
   if(startAgain) addPlayer();
   else scoreboardById(playerId)
 }
