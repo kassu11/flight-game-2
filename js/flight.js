@@ -253,4 +253,11 @@ b.addEventListener("click", () => {
 })
 document.querySelector("#scoreboard").append(b)
 
+
+const mainMenuButton = document.querySelector(".startGame")
+mainMenuButton.onclick = async () => {
+  document.querySelector("#game").style.visibility = null
+  document.querySelector("#mainMenu").style.display = "none"
+}
+
 addPlayer();

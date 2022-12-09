@@ -12,7 +12,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=JetBrains+Mono:wght@100;400;500;600;700&display=swap" rel="stylesheet"></head>
 <body>
 <div class="mainContainer">
-    <div id="game" style="display:none">
+    <div id="mainMenu">
+        <button class="startGame">Start game</button>
+        <button>Show scoreboard</button>
+    </div>
+    <div id="game" style="visibility:hidden">
         <div class="infoContainer">
             <div class="column">
                 <span id="player">Pelaaja: <span class="text"></span></span>
@@ -75,10 +79,7 @@
         </table>
     </div>
 
-    <div id="mainMenu">
-        <button class="startGame">Start game</button>
-        <button>Show scoreboard</button>
-    </div>
+
 
 
 </div>
