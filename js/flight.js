@@ -251,6 +251,19 @@ function removeAllMarkers() {
   allMarkers.length = 0;
 }
 
+const reset = document.querySelector(".choiceButtons .reset")
+reset.onclick = async () => {
+  const resetPlayer = await fetchJson(`http://127.0.0.1:3000/reset-score/${currentPlayer.id}`)
+  startIsoCode = await enterStartingCountry()
+  airportData = await airportByIsocode(startIsoCode)
+  currentPlayer = await fetchJson('http://127.0.0.1:3000/newplayer', {
+    method: 'POST',
+    body: JSON.stringify({airport: airportData, playerName: currentPlayer.nimi}),
+  });
+    updatePlayerInterface(currentPlayer);
+    getNewAirports(6)
+}
+
 const b = document.createElement("button");
 b.id = "nappi"
 b.textContent = "aloita uusi peli"

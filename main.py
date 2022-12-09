@@ -147,14 +147,15 @@ select country.name, airport.name, ident,
       airport.iso_country = country.iso_country""")
 all_airports = cursor.fetchall()
 
-@app.route("/reset-score/<player_id>")
+@app.route("/reset-score/<id>")
 def delete_player(id):
+    for player in players_list:
+        if player.id == int(id):
+            players_list.remove(player)
+            break
+    return {"status":"Ok"}
 
-    players_list.remove(players_list["id"])
 
-    return {"status":"Ok",}
-   
-  
 
 @app.route("/airport/<numero>")
 def choose_airport(numero):
