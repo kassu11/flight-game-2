@@ -249,3 +249,34 @@ thead {
 tr.selected {
     background-color: green;
 }
+
+
+
+
+.mainMenuButtons {
+    flex-direction: column;
+    flex-wrap: wrap;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+.mainMenuButtons button {
+    border-color: #22d3ee;
+    background: #0e7490;
+    border-radius: 10px;
+    border-style: solid;
+    color: #cffafe;
+    padding: 5px;
+    margin: 30px;
+    font-weight: 500;
+}
+
+.mainMenuButtons button:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+
+
