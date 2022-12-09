@@ -254,9 +254,12 @@ function removeAllMarkers() {
 const b = document.createElement("button");
 b.id = "nappi"
 b.textContent = "aloita uusi peli"
-b.addEventListener("click", () => {
+b.onclick = async () => {
+  document.querySelector("#mainMenu").style.display = "block"
+  document.querySelector("#scoreboard").style.visibility = "hidden"
+
   addPlayer()
-})
+}
 document.querySelector("#scoreboard").append(b)
 
 
