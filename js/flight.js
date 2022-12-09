@@ -3,6 +3,7 @@ const allMarkers = [];
 let currentAirport = null;
 let currentPlayer = null;
 const flightPath = [];
+const playerFlightPath = [];
 
 Number.prototype.formatNumbers = function(e) {
   return this.toLocaleString('ja-JP', {style: 'currency', currency: 'JPY'}).
@@ -84,7 +85,7 @@ async function getNewAirports(numb) {
           },
       );
       showAllMapResults(airportResponseJson, airport);
-
+      playerFlightPath.push(airport.slice(3, 5));
       buttons.forEach(button => button.onclick = null);
       document.querySelector('.buttons').classList.add("disabled");
       button.classList.add("selected");
@@ -188,6 +189,34 @@ async function endGame(){
   console.log(bestPath)
   if(startAgain) addPlayer();
   else scoreboardById(playerId)
+}
+
+function renderPaths() {
+  removeAllMarkers();
+  const bounds = new L.LatLngBounds(playerFlightPath);
+  map.fitBounds(bounds, {padding: [25, 25]});
+
+  for(const [lati, long] of playerFlightPath) {
+    const icon = L.divIcon({className: "customMarker"});
+    const marker = L.marker([lati,  long], {icon: icon}).addTo(map);
+    allMarkers.push(marker);
+  }
+
+  let startCords = playerFlightPath[0]
+  for(let i = 1; i < playerFlightPath.length; i++) {
+    const endCords = playerFlightPath[i];
+    const startPoint = new L.LatLng(startCords[0], startCords[1]);
+    const endPoint = new L.LatLng(endCords[0], endCords[1]);
+    startCords = endCords;
+    const firstpolyline = new L.Polyline([startPoint, endPoint], {
+      color: true ? "#22d3ee" : "#164e63",
+      weight: true ? 3 : 2,
+      opacity: true ? 1 : .5,
+      smoothFactor: 1
+    });
+    allMarkers.push(firstpolyline)
+    firstpolyline.addTo(map);    
+  }
 }
 
 async function scoreBoard() {
