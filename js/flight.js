@@ -54,6 +54,7 @@ async function addPlayer() {
     method: 'POST',
     body: JSON.stringify({airport: airportData, playerName: playerName}),
   });
+  flightPath.push(airportData)
   console.log(playerJson);
   currentPlayer = playerJson;
   getNewAirports(6);
@@ -62,12 +63,12 @@ async function addPlayer() {
 async function getNewAirports(numb) {
   const airportResponseJson = await fetchJson(`http://127.0.0.1:3000/airport/${numb}`);
   const buttons = document.querySelectorAll('.buttons tr.button');
-  flightPath.push([airportResponseJson])
+  flightPath.push(airportResponseJson);
 
   console.log("getNewAirports")
 
+  console.log(flightPath)
   airportResponseJson.forEach((airport, index) => {
-    console.log(flightPath)
     const button = buttons[index];
     button.querySelector("td.country").textContent = `${airport[0]}`;
     button.querySelector("td.airport").textContent = airport[1];
@@ -173,6 +174,11 @@ async function saveGame(){
 async function endGame(){
   const playerId = await saveGame();
   const startAgain = confirm("haluatko aloittaa uuden pelin?")
+  fetchJson("http://127.0.0.1:3000/best-flight-path", {
+    flightPaths: flightPath.map(row => row.map(airport => {
+      return airport.slice(3, 5)
+    }))
+  })
   if(startAgain) addPlayer();
   else scoreboardById(playerId)
 }
