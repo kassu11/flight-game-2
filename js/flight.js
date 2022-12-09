@@ -54,7 +54,7 @@ async function addPlayer() {
     method: 'POST',
     body: JSON.stringify({airport: airportData, playerName: playerName}),
   });
-  flightPath.push(airportData)
+  flightPath.push([airportData])
   console.log(playerJson);
   currentPlayer = playerJson;
   getNewAirports(6);
@@ -174,9 +174,9 @@ async function saveGame(){
 async function endGame(){
   const playerId = await saveGame();
   const startAgain = confirm("haluatko aloittaa uuden pelin?")
-  fetchJson("http://127.0.0.1:3000/best-flight-path", {
+  const bestPath = fetchJson("http://127.0.0.1:3000/best-flight-path", {
     flightPaths: flightPath.map(row => row.map(airport => {
-      return airport.slice(3, 5)
+      return airport.slice(3, 6)
     }))
   })
   if(startAgain) addPlayer();
