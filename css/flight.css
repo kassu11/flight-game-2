@@ -273,5 +273,26 @@ tr.selected {
     cursor: pointer;
 }
 
+.choiceButtons {
+    display: flex;
+}
+
+.choiceButtons button {
+    border-color: #22d3ee;
+    background: #0e7490;
+    border-radius: 10px;
+    border-style: solid;
+    color: #cffafe;
+    padding: 15px;
+    margin: 30px;
+    font-weight: 500;
+    width: 50%;
+}
+
+.choiceButtons button:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
 
 

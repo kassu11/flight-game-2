@@ -17,6 +17,12 @@ async function fetchJson(url, param={}) {
 }
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+function nextRound() {
+  return new Promise(resolve => {
+    const button = document.querySelector(".choiceButtons .skip")
+    button.onclick = resolve
+  })
+}
 
 async function airportByIsocode(airportCountry) {
   const jsonAnswer = await fetchJson(`http://127.0.0.1:3000/code/${airportCountry}`);
@@ -92,7 +98,8 @@ async function getNewAirports(numb) {
 
       await postPlayerFlight(airport, calculateJson)
       updatePlayerInterface(currentPlayer);
-      await sleep(2500);
+      await nextRound();
+
 
       document.querySelector('.buttons').classList.remove("disabled");
       button.classList.remove("selected");
@@ -286,6 +293,7 @@ function removeAllMarkers() {
   allMarkers.forEach((marker) => map.removeLayer(marker));
   allMarkers.length = 0;
 }
+
 
 const reset = document.querySelector(".choiceButtons .reset")
 reset.onclick = async () => {
