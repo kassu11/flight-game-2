@@ -163,13 +163,15 @@ async function saveGame(){
     method: 'POST',
     body: JSON.stringify(currentPlayer)
   });
+  
+  return id;
 }
 
 async function endGame(){
-  saveGame();
+  const playerId = await saveGame();
   const startAgain = confirm("haluatko aloittaa uuden pelin?")
-  if(startAgain) addPlayer()
-  else scoreboardById(111)
+  if(startAgain) addPlayer();
+  else scoreboardById(playerId)
 }
 
 async function scoreBoard() {
