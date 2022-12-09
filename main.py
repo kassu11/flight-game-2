@@ -6,6 +6,7 @@ import mysql.connector
 from dotenv import load_dotenv
 import os
 import json
+import copy
 
 
 load_dotenv(".env")
@@ -178,12 +179,29 @@ def choose_airport(numero):
 def best_flight_path():
     if request.method == "POST":
         json_response = request.get_json(force=True)
-        length = len(json_response.airports) - 3
+        length = len(json_response.flightPaths) - 3
         for i in range(length):
-            print(json_response.airports[i])
+            max_score = None
+            best_path = None
 
+            loop(json_response.flightPaths[i+1:i+3], json_response.flightPaths[i][0], 0, [])
+            if len(best_path) > 1: json_response.flightPaths[i+1] = [best_path[1]]
 
-        return {"status":"ok"}
+            def loop(arr, current, score, path):
+                global max_score 
+                global best_path 
+                if len(arr) == 0:
+                    if max_score == None or score > max_score:
+                        max_score = score
+                        best_path = path
+                    return
+                for rivi in arr:
+                    end = rivi[0:2]
+                    stats = calculate_flight_info(current, end, rivi[3])
+                    path = copy.deepcopy(path)
+                    path.append(rivi)
+                    return loop(arr[1:], end, score + stats["score"], path)                
+        return json_response
     
 
 @app.route("/save", methods=["POST"])
