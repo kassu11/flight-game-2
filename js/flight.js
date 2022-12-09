@@ -242,4 +242,12 @@ function removeAllMarkers() {
   allMarkers.length = 0;
 }
 
+const b = document.createElement("button");
+b.id = "nappi"
+b.textContent = "aloita uusi peli"
+b.addEventListener("click", () => {
+  addPlayer()
+})
+document.querySelector("#scoreboard").append(b)
+
 addPlayer();
