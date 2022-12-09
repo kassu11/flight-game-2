@@ -117,25 +117,45 @@ def laske_matka():
         json_response = request.get_json(force=True)
         alkukentta = json_response["alkuLentokentta"][3:5]
         nykynen_kentta = json_response["loppuLentokentta"][3:5]
-        print(nykynen_kentta)
-        matka = geodesic(alkukentta, nykynen_kentta).km
-        points_by_type = {
-            "small_airport": 10,
-            "heliport": 15,
-            "closed": -15,
-            "medium_airport": 20,
-            "seaplane_base": 30,
-            "large_airport": 45,
-            "balloonport": 90,
-        }
-
-        conversion = matka / 1000
         airport_type = json_response["loppuLentokentta"][5]
-        score = points_by_type[airport_type] - conversion
-        co2 = 2 * matka
+        return calculate_flight_info(alkukentta, nykynen_kentta, airport_type)
+        # print(nykynen_kentta)
+        # matka = geodesic(alkukentta, nykynen_kentta).km
+        # points_by_type = {
+        #     "small_airport": 10,
+        #     "heliport": 15,
+        #     "closed": -15,
+        #     "medium_airport": 20,
+        #     "seaplane_base": 30,
+        #     "large_airport": 45,
+        #     "balloonport": 90,
+        # }
 
-        return {"matka": round(matka), "score": round(score, 2), "co2": round(co2)}
+        # conversion = matka / 1000
+        # airport_type = json_response["loppuLentokentta"][5]
+        # score = points_by_type[airport_type] - conversion
+        # co2 = 2 * matka
 
+        # return {"matka": round(matka), "score": round(score, 2), "co2": round(co2)}
+
+
+def calculate_flight_info(start_airport, end_airport, type_of_airport):
+    matka = geodesic(start_airport, end_airport).km
+    points_by_type = {
+        "small_airport": 10,
+        "heliport": 15,
+        "closed": -15,
+        "medium_airport": 20,
+        "seaplane_base": 30,
+        "large_airport": 45,
+        "balloonport": 90,
+    }
+
+    conversion = matka / 1000
+    score = points_by_type[type_of_airport] - conversion
+    co2 = 2 * matka
+
+    return {"matka": round(matka), "score": round(score, 2), "co2": round(co2)}
 
 cursor.execute("""
 select country.name, airport.name, ident, 
@@ -164,7 +184,17 @@ def choose_airport(numero):
             airport_buttons.append(airport)
     return airport_buttons
 
+@app.route("/best-flight-path", methods=["POST"])
+def best_flight_path():
+    if request.method == "POST":
+        json_response = request.get_json(force=True)
+        length = len(json_response.airports) - 3
+        for i in range(length):
+            print(json_response.airports[i])
 
+
+        return {"status":"ok"}
+    
 
 @app.route("/save", methods=["POST"])
 def update_sql():
