@@ -74,6 +74,8 @@ async function getNewAirports(numb) {
 
   airportResponseJson.forEach((airport, index) => {
     const button = buttons[index];
+    button.onmouseleave = null;
+    button.onmouseover = null;
     button.querySelector("td.country").textContent = `${airport[0]}`;
     button.querySelector("td.airport").textContent = airport[1];
     button.onclick = async () => {
@@ -142,16 +144,28 @@ function showAllMapResults(airportSelection, selectedAirport) {
   const startPoint = new L.LatLng(currentAirport[3], currentAirport[4]);
 
   
-  allAirPorts.forEach(airport => {
+  allAirPorts.forEach((airport, index) => {
     const longitude_deg = airport[4]
     const latitude_deg = airport[3]
     const endPoint = new L.LatLng(airport[3], airport[4]);
-    let className = "customMarker";
-    if(airport == selectedAirport) className += " headed";
-    else if(airport == currentAirport) className += " current";
-    const icon = L.divIcon({className});
-    
     const isSelected = selectedAirport === airport;
+
+    const markerElem = createMarkerElement(
+      isSelected ? "current" : 
+      airport == currentAirport ? "headed" : "default");
+    const icon = L.divIcon({html: markerElem});
+
+    if(index < airport.length) {
+      const button = document.querySelectorAll("#game .buttons .button")[index]
+      button.onmouseover = () => {
+        markerElem.classList.add("hovered")
+      }
+      button.onmouseleave = () => {
+        markerElem.classList.remove("hovered")
+      }
+    }
+
+    
 
     const firstpolyline = new L.Polyline([startPoint, endPoint], {
       color: isSelected ? "#22d3ee" : "#164e63",
@@ -203,6 +217,20 @@ async function getBestPath() {
   renderPaths(arr);
 }
 
+function createMarkerElement(type) {
+  const div = document.createElement("div");
+  if(type === "default") div.classList.add("normalMarker")
+  else if(type === "current") div.classList.add("normalMarker", "current")
+  else if(type === "headed") div.classList.add("normalMarker", "headed")
+  else if(type === "dot") {
+    div.classList.add("dotMarker")
+    const p = document.createElement("p");
+    div.append(p);
+  }
+  
+  return div;
+}
+
 function renderPaths(path) {
   removeAllMarkers();
   const bounds = new L.LatLngBounds(path);
@@ -210,8 +238,10 @@ function renderPaths(path) {
 
   for(let i = 0; i < path.length; i++) {
     const [lati, long] = path[i]
-    let iconOption =  {html: `<div style="background: hsl(${10 * i % 360}deg 100% 50%)"></div>`}
-    if(i == 0) iconOption = {className: "customMarker"}
+    const markerElem = createMarkerElement("dot");
+    markerElem.style.background = `hsl(${10 * i % 360}deg 100% 50%)`;
+    markerElem.querySelector("p").textContent = i;
+    const iconOption = {html: i == 0 ? createMarkerElement("current") : markerElem}
     const icon = L.divIcon(iconOption);
     const marker = L.marker([lati,  long], {icon: icon}).addTo(map);
     allMarkers.push(marker);
@@ -287,7 +317,8 @@ function updatePlayerInterface(player) {
 function updateMap(jsonAnswer) {
   const longitude_deg = jsonAnswer.longitude_deg;
   const latitude_deg = jsonAnswer.latitude_deg;
-  const icon = L.divIcon({className: "customMarker current"});
+  const iconElement = createMarkerElement("default");
+  const icon = L.divIcon({html: iconElement});
   map.setView([latitude_deg, longitude_deg], 5);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 

@@ -47,52 +47,68 @@ body {
     border: none;
 }
 
-#map .customMarker::before {
-    content: "";
-    position: absolute;
-    background-color: rgb(14 116 144);
-    width: 10px;
-    height: 10px;
-    left: calc(50% - 3px);
-    transform: translateX(-50%);
-    border-radius: 50% 50% 50% 0px;
-    border: 2px solid black;
-    rotate: -45deg;
-    bottom: 100%;
-    animation: markerAnimation 1s;
+#map .leaflet-marker-icon .normalMarker.hovered {
+    transform: scale(1.5);
+    outline: 2px solid #00175e;
+    outline-offset: 2px;
 }
 
-#map .customMarker.current::before {
+#map .leaflet-marker-icon .normalMarker {
+    position: absolute;
+    background-color: rgb(14 116 144);
+    outline-offset: -2px;
+    width: 10px;
+    height: 10px;
+    left: 50%;
+    border-radius: 50% 50% 50% 0px;
+    border: 2px solid black;
+    outline: 2px solid transparent;
+    rotate: -45deg;
+    transform-origin: left bottom;
+    bottom: 50%;
+    animation: markerAnimation 1s;
+    transition: all .2s;
+}
+
+#map .leaflet-marker-icon .normalMarker.headed {
     background-color: #3b82f6;
 }
-#map .customMarker.headed::before {
+#map .leaflet-marker-icon .normalMarker.current {
     background-color: #a5f3fc;
 }
 
-#map .customMarker::after {
+#map .leaflet-marker-icon .normalMarker::after {
     content: "";
     position: absolute;
     border-radius: 50%;
     background-color: black;
     width: 4px;
     height: 4px;
-    left: calc(50% - 0.5px);
-    transform: translateX(-50%);
-    bottom: 100%;
-    animation: markerDotAnimation 1s;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
-#map .leaflet-marker-icon div {
-    content: "";
+#map .leaflet-marker-icon .dotMarker {
     position: absolute;
     border-radius: 50%;
     background-color: #002a39;
-    width: 6px;
-    height: 6px;
+    width: 13px;
+    height: 13px;
+    display: grid;
+    place-items: center;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     border: 2px solid black;
+}
+
+#map .leaflet-marker-icon .dotMarker p {
+    margin: 0px;
+    font-size: 10px;
+    color: black;
+    font-family: "JetBrains Mono";
+    font-weight: 500;
 }
 
 .leaflet-popup-content-wrapper {
@@ -122,20 +138,13 @@ body {
 
 @keyframes markerAnimation {
     0% {
-        transform: scale(2) translateY(-30px) translateX(calc(-50% + 30px));
+        transform: scale(2) translateY(-30px) translatex(25px);
     }
     100% {
-        transform: translateX(-50%);
+        transform: scale(1);
     }
 }
-@keyframes markerDotAnimation {
-    0% {
-        transform: scale(2) translateY(-36px) translateX(-50%);
-    }
-    100% {
-        transform: translateX(-50%);
-    }
-}
+
 
 .leaflet-bottom.leaflet-right {
     display: none;
