@@ -107,7 +107,7 @@ async function getNewAirports(numb) {
         latitude_deg: airport[3],
         name: airport[1],
       });
-      if(currentPlayer.co2 >= currentPlayer.co2max) endGame();
+      if(currentPlayer.co2 >= currentPlayer.co2max && false) endGame();
       else getNewAirports(numb);
     };
   });
@@ -179,6 +179,12 @@ async function saveGame(){
 async function endGame(){
   const playerId = await saveGame();
   const startAgain = confirm("haluatko aloittaa uuden pelin?")
+
+  if(startAgain) addPlayer();
+  else scoreboardById(playerId)
+}
+
+async function getBestPath() {
   const flightPaths = flightPath.map(row => row.map(airport => {
     return airport.slice(3, 6)
   }));
@@ -190,41 +196,42 @@ async function endGame(){
     })
   });
 
-  if(startAgain) addPlayer();
-  else scoreboardById(playerId)
+
+  const arr = bestPath.flightPaths.map(path => path[0].slice(0, 2))
+  console.log(arr)
+
+  renderPaths(arr);
 }
 
-function renderPaths() {
+function renderPaths(path) {
   removeAllMarkers();
-  const bounds = new L.LatLngBounds(playerFlightPath);
+  const bounds = new L.LatLngBounds(path);
   map.fitBounds(bounds, {padding: [25, 25]});
 
-  for(let i = 0; i < playerFlightPath.length; i++) {
-    const [lati, long] = playerFlightPath[i]
-    setTimeout(_ => {
-      const icon = L.divIcon({className: "customMarker"});
-      const marker = L.marker([lati,  long], {icon: icon}).addTo(map);
-      allMarkers.push(marker);
-    }, 100 * i);
+  for(let i = 0; i < path.length; i++) {
+    const [lati, long] = path[i]
+    let iconOption =  {html: `<div style="background: hsl(${10 * i % 360}deg 100% 50%)"></div>`}
+    if(i == 0) iconOption = {className: "customMarker"}
+    const icon = L.divIcon(iconOption);
+    const marker = L.marker([lati,  long], {icon: icon}).addTo(map);
+    allMarkers.push(marker);
   }
 
 
-  let startCords = playerFlightPath[0]
-  for(let i = 1; i < playerFlightPath.length; i++) {
-    // setTimeout(_ => {
-      const endCords = playerFlightPath[i];
-      const startPoint = new L.LatLng(startCords[0], startCords[1]);
-      const endPoint = new L.LatLng(endCords[0], endCords[1]);
-      startCords = endCords;
-      const firstpolyline = new L.Polyline([startPoint, endPoint], {
-        color: true ? "#22d3ee" : "#164e63",
-        weight: true ? 3 : 2,
-        opacity: true ? 1 : .5,
-        smoothFactor: 1
-      });
-      allMarkers.push(firstpolyline)
-      firstpolyline.addTo(map);
-    // }, 200 * i)
+  let startCords = path[0]
+  for(let i = 1; i < path.length; i++) {
+    const endCords = path[i];
+    const startPoint = new L.LatLng(startCords[0], startCords[1]);
+    const endPoint = new L.LatLng(endCords[0], endCords[1]);
+    startCords = endCords;
+    const firstpolyline = new L.Polyline([startPoint, endPoint], {
+      color: `hsl(${10 * i % 360}deg 100% 50%)`,
+      weight: true ? 3 : 2,
+      opacity: true ? 1 : .5,
+      smoothFactor: 1
+    });
+    allMarkers.push(firstpolyline)
+    firstpolyline.addTo(map);
   }
 }
 

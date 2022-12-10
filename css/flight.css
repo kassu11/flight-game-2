@@ -42,6 +42,11 @@ body {
     overflow: hidden;
 }
 
+#map .leaflet-marker-icon {
+    background: none;
+    border: none;
+}
+
 #map .customMarker::before {
     content: "";
     position: absolute;
@@ -77,8 +82,17 @@ body {
     animation: markerDotAnimation 1s;
 }
 
-.leaflet-popup {
-    /* background-color: red; */
+#map .leaflet-marker-icon div {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background-color: #002a39;
+    width: 6px;
+    height: 6px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid black;
 }
 
 .leaflet-popup-content-wrapper {
