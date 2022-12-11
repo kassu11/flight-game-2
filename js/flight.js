@@ -19,8 +19,8 @@ async function fetchJson(url, param={}) {
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 function nextRoundButton() {
   return new Promise(resolve => {
-    const button = document.querySelector(".choiceButtons #skip")
-    button.onclick = resolve
+    const button = document.querySelector(".choiceButtons #skip");
+    button.onclick = resolve;
   });
 }
 
@@ -173,7 +173,7 @@ function showAllMapResults(airportSelection, selectedAirport) {
   });
 }
 
-async function saveGame(){
+async function saveGame() {
   const {id} = await fetchJson(`http://127.0.0.1:3000/save`, {
     method: 'POST',
     body: JSON.stringify(currentPlayer)
@@ -192,7 +192,7 @@ async function endGame(){
   document.querySelector("#scoreboardButton").classList.remove("disabled");
 
   document.querySelector("#scoreboardButton").onclick = () => {
-    scoreboardById(playerId)
+    showScoreboardById(playerId)
   }
 }
 
@@ -263,24 +263,26 @@ function renderPaths(path) {
   }
 }
 
-async function scoreBoard() {
+async function showScoreboard() {
   const scoreboardJson = await fetchJson(`http://127.0.0.1:3000/scoreboard/`)
-  console.log(scoreboardJson)
   const tbodySelect = document.querySelector("#scoreboard tbody")
-  scoreboardJson.forEach(row => {
+
+  scoreboardJson.forEach((row, index) => {
     const tableRow = document.createElement("tr")
+
+    row[0] = index + 1
     row.forEach(value => {
       const column = document.createElement("td")
       column.textContent = value
       tableRow.append(column)
-    })
+    });
     tbodySelect.append(tableRow)
   })
-  document.querySelector("#scoreboard").style.display=null
-  document.querySelector("#game").style.display="none"
+  document.querySelector("#scoreboard").style.display = null
+  document.querySelector("#game").style.display = "none"
 }
 
-async function scoreboardById(id) {
+async function showScoreboardById(id) {
   const {playerList, startIndex} = await fetchJson(`http://127.0.0.1:3000/scoreboard/${id}`)
   console.log(playerList)
   const tbodySelect = document.querySelector("#scoreboard tbody")
@@ -297,8 +299,8 @@ async function scoreboardById(id) {
     })
     tbodySelect.append(tableRow)
   })
-  document.querySelector("#scoreboard").style.display=null
-  document.querySelector("#game").style.display="none"
+  document.querySelector("#scoreboard").style.display = null
+  document.querySelector("#game").style.display = "none"
 }
 
 function updatePlayerInterface(player) {
@@ -340,24 +342,28 @@ function openGameStartingModel() {
   document.querySelector(`form input[type="submit"]`).value = "Start game"
 }
 
-document.querySelector("form").addEventListener("submit", async function(submitEvent) {
+document.querySelector("form").addEventListener("submit", newGameFormSubmit);
+async function newGameFormSubmit(submitEvent) {
   submitEvent.preventDefault();
   document.querySelector("form input[name='playerName']").disabled = false;
   const formData = new FormData(this);
   const errorElem = document.querySelector("form .error");
   const startIsocode = formData.get("startIsocode");
 
-
   if(startIsocode == "" || !errorElem.classList.contains("hidden")) {
     addPlayer(formData.get("playerName"), "random");
+    newGameFormSubmit.resolve?.();
   } else {
     const {result} = await fetchJson(`http://127.0.0.1:3000/tarkista-maakoodi/${startIsocode}`)
-    if(result) return addPlayer(formData.get("playerName"), startIsocode);
+    if(result) {
+      newGameFormSubmit.resolve?.();
+      return addPlayer(formData.get("playerName"), startIsocode);
+    }
 
     errorElem.classList.remove("hidden");
     document.querySelector(`form input[type="submit"]`).value = "Start anyway"
   }
-});
+}
 
 document.querySelector("#reset").onclick = async function() {
   if(this.classList.contains("disabled")) return;
@@ -370,7 +376,8 @@ document.querySelector("#reset").onclick = async function() {
   playerNameInput.value = nimi
   playerNameInput.disabled = true;
 
-  await new Promise(resolve => formElem.onsubmit = resolve);
+  const formResponse = new Promise(resolve => newGameFormSubmit.resolve = resolve);
+  await formResponse;
   await fetch(`http://127.0.0.1:3000/reset-score/${id}`)
 }
 document.querySelector("#newGameButton").onclick = async function() {
@@ -378,35 +385,44 @@ document.querySelector("#newGameButton").onclick = async function() {
   openGameStartingModel();
 }
 
-const b = document.createElement("button");
-b.id = "nappi"
-b.textContent = "aloita uusi peli"
-b.onclick = async () => {
-  document.querySelector("#mainMenu").style.display = "block"
-  document.querySelector("#scoreboard").style.visibility = "hidden"
+document.querySelector("#backToMainMenu").addEventListener("click", () => {
+  document.querySelector("#scoreboard").style.display = "none"
+  document.querySelector("#game").style.visibility = "hidden"
+  document.querySelector("#game").style.display = null
+  document.querySelector("#mainMenu").style.display = null
+});
 
-  addPlayer()
-}
-document.querySelector("#scoreboard").append(b)
+document.querySelector("#scoreBoardNewGame").addEventListener("click", async () => {
+  openGameStartingModel();
+  const formResponse = new Promise(resolve => newGameFormSubmit.resolve = resolve);
+  await formResponse;
+  document.querySelector("#scoreboard").style.display = "none";
+  document.querySelector("#game").style.visibility = null;
+  document.querySelector("#game").style.display = null;
+});
 
+document.querySelector("#startGame").addEventListener("click", openGameStartingModel);
 
-const mainMenuButton = document.querySelector(".startGame")
-mainMenuButton.onclick = async () => {
-  openGameStartingModel()
-}
+document.querySelector("#showScoreboard").addEventListener("click", e => {
+  showScoreboard();
+  document.querySelector("#scoreboard").style.display = null;
+  document.querySelector("#mainMenu").style.display = "none";
 
+});
 
 
 
 
 // Debugging
 
-window.addEventListener("keydown",e => {
+window.addEventListener("keydown", e => {
   // console.log(e)
   if(e.code == "BracketLeft") {
-    document.querySelector(".startGame").click();
+    document.querySelector("#startGame").click();
     document.querySelector(`input[name="playerName"]`).value = "kassu"
     document.querySelector(`input[name="startIsocode"]`).value = "fi"
     document.querySelector(`input[type="submit"]`).click();
   }
 })
+
+// scoreboardById(150)

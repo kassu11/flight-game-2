@@ -14,8 +14,8 @@
 <div class="mainContainer">
     <div id="mainMenu">
         <div class="mainMenuButtons">
-            <button class="startGame">Start game</button>
-            <button>Show scoreboard</button>
+            <button id="startGame">Start game</button>
+            <button id="showScoreboard">Show scoreboard</button>
         </div>
     </div>
     <div id="game" style="visibility:hidden">
@@ -70,17 +70,23 @@
         </div>
     </div>
     <div id="scoreboard" style="display: none">
-        <table>
-            <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Name</th>
-                <th>Score</th>
-                <th>Co2</th>
-            </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <div class="container">
+            <table>
+                <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Score</th>
+                    <th>Co2</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div class="buttonsContainer">
+                <button id="backToMainMenu">Main menu</button>
+                <button id="scoreBoardNewGame">New game</button>
+            </div>
+        </div>
     </div>
 
     <dialog>

@@ -233,19 +233,18 @@ def update_sql():
 
 @app.route("/scoreboard/")
 def send_scoreboard():
-    sql = "select screen_name, score, co2_consumed from game order by score desc limit 100;"
+    sql = "select id, screen_name, score, co2_consumed from game order by score desc limit 100;"
     cursor.execute(sql)
     result = cursor.fetchall()
     return result
 
 @app.route("/scoreboard/<id>")
 def scoreboard_by_id(id):
-    int_id = int(id)
-    sql = "select cast(id as int), screen_name, score, co2_consumed from game order by score desc;"
+    sql = "select id, screen_name, score, co2_consumed from game order by score desc;"
     cursor.execute(sql)
     result = cursor.fetchall()
     for riviNumero in range(len(result)):
-        if result[riviNumero][0] == int_id:
+        if result[riviNumero][0] == id:
             players = result[max(riviNumero-20, 0):riviNumero+21]
             return {"playerList": players, "startIndex": riviNumero}
     return {"error": "id not found"}
