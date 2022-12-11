@@ -37,6 +37,7 @@ async function airportByIsocode(airportCountry) {
 
 async function addPlayer(playerName, startIsoCode) {
   document.querySelector("#game").style.visibility = null
+  document.querySelector("#game").style.overflow = null
   document.querySelector("#mainMenu").style.display = "none"
   document.querySelector("dialog").close();
   document.querySelector("#reset").classList.remove("disabled");
@@ -62,27 +63,42 @@ async function getNewAirports(numb) {
   document.querySelector('.buttons .selected')?.classList.remove("selected");
   flightPath.push(airportResponseJson);
 
-  airportResponseJson.forEach((airport, index) => {
+  airportResponseJson.forEach(async (airport, index) => {
     const button = buttons[index];
     button.onmouseleave = null;
     button.onmouseover = null;
     button.querySelector("td.country").textContent = `${airport[0]}`;
     button.querySelector("td.airport").textContent = airport[1];
 
+    console.log(document.querySelector('.buttons').classList.contains("disabled"))
+
+    const {matka, score} = await fetchJson(
+      `http://127.0.0.1:3000/laske-lennon-tiedot`, {
+        method: 'POST',
+        body: JSON.stringify({
+          alkuLentokentta: currentAirport,
+          loppuLentokentta: airport,
+        }),
+      },
+    );
+
+    button.querySelector("td.distance").textContent = `${matka} km`;
+    button.querySelector("td.score").textContent = `${score} p`;
+
     document.querySelector("#skip").classList.add("disabled");
     document.querySelector("#newGameButton").classList.add("disabled");
     document.querySelector("#scoreboardButton").classList.add("disabled");
     button.onclick = async () => {
       const calculateJson = await fetchJson(
-          `http://127.0.0.1:3000/laske-lennon-tiedot`,
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              alkuLentokentta: currentAirport,
-              loppuLentokentta: airport,
-            }),
-          },
+        `http://127.0.0.1:3000/laske-lennon-tiedot`, {
+          method: 'POST',
+          body: JSON.stringify({
+            alkuLentokentta: currentAirport,
+            loppuLentokentta: airport,
+          }),
+        },
       );
+
       showAllMapResults(airportResponseJson, airport);
       playerFlightPath.push(airport.slice(3, 5));
       buttons.forEach(button => button.onclick = null);
@@ -265,7 +281,8 @@ function renderPaths(path) {
 
 async function showScoreboard() {
   const scoreboardJson = await fetchJson(`http://127.0.0.1:3000/scoreboard/`)
-  const tbodySelect = document.querySelector("#scoreboard tbody")
+  const tbodySelect = document.querySelector("#scoreboard tbody");
+  tbodySelect.textContent = "";
 
   scoreboardJson.forEach((row, index) => {
     const tableRow = document.createElement("tr")
@@ -284,8 +301,9 @@ async function showScoreboard() {
 
 async function showScoreboardById(id) {
   const {playerList, startIndex} = await fetchJson(`http://127.0.0.1:3000/scoreboard/${id}`)
-  console.log(playerList)
+
   const tbodySelect = document.querySelector("#scoreboard tbody")
+  tbodySelect.textContent = "";
   playerList.forEach((row, index) => {
     const tableRow = document.createElement("tr")
     if (row[0] == id) {
@@ -388,6 +406,7 @@ document.querySelector("#newGameButton").onclick = async function() {
 document.querySelector("#backToMainMenu").addEventListener("click", () => {
   document.querySelector("#scoreboard").style.display = "none"
   document.querySelector("#game").style.visibility = "hidden"
+  document.querySelector("#game").style.overflow = "scroll"
   document.querySelector("#game").style.display = null
   document.querySelector("#mainMenu").style.display = null
 });
@@ -398,6 +417,7 @@ document.querySelector("#scoreBoardNewGame").addEventListener("click", async () 
   await formResponse;
   document.querySelector("#scoreboard").style.display = "none";
   document.querySelector("#game").style.visibility = null;
+  document.querySelector("#game").style.overflow = null;
   document.querySelector("#game").style.display = null;
 });
 

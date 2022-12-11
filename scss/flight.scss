@@ -8,9 +8,13 @@ body {
 .mainContainer {
   position: absolute;
   inset: 0px;
-  padding: 10px;
   max-width: 1200px;
   margin-inline: auto;
+
+  > div {
+    position: absolute;
+    inset: 10px;
+  }
 }
 
 
@@ -194,16 +198,23 @@ body {
       background-color: transparent;
       color: #cffafe;
       font-family: "JetBrains Mono";
-      font-size: 16px;
+      font-size: 12px;
       text-align: left;
       margin-bottom: 10px; 
-      transition: .2s all;
+      transition: .2s transform;
 
       td {
         padding: 15px;
         border: none;
-        transition: .15s all;
       }
+
+      .score, .distance {
+        white-space: nowrap;
+        font-weight: 900;
+      }
+
+      .score {color: #eab308}
+      .distance {color: #ea580c}
 
       .country {
         color: #ecfeff;
@@ -225,14 +236,19 @@ body {
   }
   
   &:not(.disabled) {
-    .button:hover::before {
-      border-color: #22d3ee;
-      background: #0e7490
+    .score, .distance {
+      opacity: 0;
+      user-select: none;
     }
-
     .button:hover {
       transform: scale(1.009);
+
+      &::before {
+        border-color: #22d3ee;
+        background: #0e7490
+      }
     }
+
   }
   
   &.disabled {
