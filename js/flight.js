@@ -1,57 +1,64 @@
 const map = L.map('map');
 const allMarkers = [];
-let currentAirport = null;
-let currentPlayer = null;
 const flightPath = [];
 const playerFlightPath = [];
 
+let currentAirport = null;
+let currentPlayer = null;
+
+const skipButton = document.querySelector("#skip");
+const resetButton = document.querySelector("#reset");
+
+const gameContainer = document.querySelector("#game");
+const mainMenuContainer = document.querySelector("#mainMenu");
+
+const dialog = document.querySelector("dialog");
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 Number.prototype.formatNumbers = function(e) {
-  return this.toLocaleString('ja-JP', {style: 'currency', currency: 'JPY'}).
-      slice(1);
+  return this.toLocaleString('ja-JP', {
+    style: 'currency', 
+    currency: 'JPY'
+  }).slice(1);
 };
 
-async function fetchJson(url, param={}) {
+async function fetchJson(url, param = {}) {
   const fetchResponse = await fetch(url, param)
   const jsonData = await fetchResponse.json()
   return jsonData
 }
 
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-function nextRoundButton() {
-  return new Promise(resolve => {
-    const button = document.querySelector(".choiceButtons #skip");
-    button.onclick = resolve;
-  });
-}
+const nextRoundButtonClicked = () => new Promise(resolve => skipButton.onclick = resolve);
 
-async function airportByIsocode(airportCountry) {
-  const jsonAnswer = await fetchJson(`http://127.0.0.1:3000/code/${airportCountry}`);
+async function airportByIsocode(airportIsocode) {
+  const jsonAnswer = await fetchJson(`http://127.0.0.1:3000/code/${airportIsocode}`);
   currentAirport = jsonAnswer;
-  updateMap({
-    longitude_deg: jsonAnswer[4],
-    latitude_deg: jsonAnswer[3],
-    name: jsonAnswer[1],
-  });
   return jsonAnswer;
 }
 
 async function addPlayer(playerName, startIsoCode) {
-  document.querySelector("#game").style.visibility = null
-  document.querySelector("#game").style.overflow = null
-  document.querySelector("#mainMenu").style.display = "none"
-  document.querySelector("dialog").close();
-  document.querySelector("#reset").classList.remove("disabled");
+  gameContainer.style.visibility = null
+  gameContainer.style.overflow = null
+  mainMenuContainer.style.display = "none"
+  dialog.close();
+  resetButton.classList.remove("disabled");
 
   const airportData = await airportByIsocode(startIsoCode);
+  updateMap(airportData);
+
   const playerJson = await fetchJson('http://127.0.0.1:3000/newplayer', {
     method: 'POST',
     body: JSON.stringify({airport: airportData, playerName: playerName}),
   });
+
   flightPath.length = 0
   playerFlightPath.length = 0
   flightPath.push([airportData]);
   playerFlightPath.push(airportData.slice(3, 5));
+
   currentPlayer = playerJson;
+
   getNewAirports(6);
   updatePlayerInterface(currentPlayer);
 }
@@ -83,7 +90,7 @@ async function getNewAirports(numb) {
     button.querySelector("td.distance").textContent = `${calculateJson.matka} km`;
     button.querySelector("td.score").textContent = `${calculateJson.score} p`;
 
-    document.querySelector("#skip").classList.add("disabled");
+    skipButton.classList.add("disabled");
     document.querySelector("#newGameButton").classList.add("disabled");
     document.querySelector("#scoreboardButton").classList.add("disabled");
     button.onclick = async () => {
@@ -95,17 +102,13 @@ async function getNewAirports(numb) {
 
       await postPlayerFlight(airport, calculateJson)
       updatePlayerInterface(currentPlayer);
-      await nextRoundButton();
+      await nextRoundButtonClicked();
 
       button.classList.remove("selected");
       if(currentPlayer.co2 >= currentPlayer.co2max) endGame();
       else {
         getNewAirports(numb);
-        updateMap({
-          longitude_deg: airport[4],
-          latitude_deg: airport[3],
-          name: airport[1],
-        });
+        updateMap(airport);
       }
     };
   });
@@ -177,7 +180,7 @@ function showAllMapResults(airportSelection, selectedAirport) {
   });
 }
 
-async function saveGame() {
+async function savePlayerData() {
   const {id} = await fetchJson(`http://127.0.0.1:3000/save`, {
     method: 'POST',
     body: JSON.stringify(currentPlayer)
@@ -187,16 +190,16 @@ async function saveGame() {
 }
 
 async function endGame(){
-  const playerId = await saveGame();
+  const savedPlayerId = await savePlayerData();
 
   renderPaths(playerFlightPath);
-  document.querySelector("#skip").classList.add("disabled");
-  document.querySelector("#reset").classList.add("disabled");
+  skipButton.classList.add("disabled");
+  resetButton.classList.add("disabled");
   document.querySelector("#newGameButton").classList.remove("disabled");
   document.querySelector("#scoreboardButton").classList.remove("disabled");
 
   document.querySelector("#scoreboardButton").onclick = () => {
-    showScoreboardById(playerId)
+    showScoreboardById(savedPlayerId)
   }
 }
 
@@ -207,9 +210,7 @@ async function getBestPath() {
 
   const bestPath = await fetchJson("http://127.0.0.1:3000/best-flight-path", {
     method: 'POST',
-    body: JSON.stringify({
-      flightPaths
-    })
+    body: JSON.stringify({flightPaths})
   });
 
   const arr = bestPath.flightPaths.map(path => path[0].slice(0, 2))
@@ -282,7 +283,7 @@ async function showScoreboard() {
     tbodySelect.append(tableRow)
   })
   document.querySelector("#scoreboard").style.display = null
-  document.querySelector("#game").style.display = "none"
+  gameContainer.style.display = "none"
 }
 
 async function showScoreboardById(id) {
@@ -307,7 +308,7 @@ async function showScoreboardById(id) {
   });
 
   document.querySelector("#scoreboard").style.display = null
-  document.querySelector("#game").style.display = "none"
+  gameContainer.style.display = "none"
   scrollTarget.scrollIntoView({behavior: "smooth", block: "center"})
 }
 
@@ -318,22 +319,25 @@ function updatePlayerInterface(player) {
   document.querySelector("#totalCo2 .text").textContent = scoreText;
   document.querySelector("#airport .text").textContent = `[${player.airport[0]}] ${player.airport[1]}`;
   
-  document.querySelector("#skip").classList.remove("disabled");
+  skipButton.classList.remove("disabled");
 }
 
-function updateMap(jsonAnswer) {
+function updateMap(airportData) {
   removeAllMarkers();
-  const longitude_deg = jsonAnswer.longitude_deg;
-  const latitude_deg = jsonAnswer.latitude_deg;
+
+  const longitude_deg = airportData[4];
+  const latitude_deg = airportData[3];
+  const airportName = airportData[1];
+
   const iconElement = createMarkerElement("default");
   const icon = L.divIcon({html: iconElement});
   map.setView([latitude_deg, longitude_deg], 5);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-  const marker = L.marker([latitude_deg, longitude_deg], {icon: icon}).
-      addTo(map).
-      bindPopup(jsonAnswer.name).
-      openPopup();
+  const marker = L.marker([latitude_deg, longitude_deg], {icon: icon})
+    .addTo(map)
+    .bindPopup(airportName)
+    .openPopup();
   allMarkers.push(marker);
 }
 
@@ -343,7 +347,6 @@ function removeAllMarkers() {
 }
 
 function openGameStartingModel() {
-  const dialog = document.querySelector("dialog");
   if(!dialog.open) dialog.showModal();
   dialog.querySelector("form").reset();
   dialog.querySelector("form input[name='playerName']").disabled = false;
@@ -374,7 +377,7 @@ async function newGameFormSubmit(submitEvent) {
   }
 }
 
-document.querySelector("#reset").onclick = async function() {
+resetButton.onclick = async function() {
   if(this.classList.contains("disabled")) return;
   openGameStartingModel();
   const formElem = document.querySelector("form");
@@ -398,10 +401,10 @@ document.querySelector("#newGameButton").onclick = async function() {
 
 document.querySelector("#backToMainMenu").addEventListener("click", () => {
   document.querySelector("#scoreboard").style.display = "none"
-  document.querySelector("#game").style.visibility = "hidden"
-  document.querySelector("#game").style.overflow = "scroll"
-  document.querySelector("#game").style.display = null
-  document.querySelector("#mainMenu").style.display = null
+  gameContainer.style.visibility = "hidden"
+  gameContainer.style.overflow = "scroll"
+  gameContainer.style.display = null
+  mainMenuContainer.style.display = null
 });
 
 document.querySelector("#scoreBoardNewGame").addEventListener("click", async () => {
@@ -409,9 +412,9 @@ document.querySelector("#scoreBoardNewGame").addEventListener("click", async () 
   const formResponse = new Promise(resolve => newGameFormSubmit.resolve = resolve);
   await formResponse;
   document.querySelector("#scoreboard").style.display = "none";
-  document.querySelector("#game").style.visibility = null;
-  document.querySelector("#game").style.overflow = null;
-  document.querySelector("#game").style.display = null;
+  gameContainer.style.visibility = null;
+  gameContainer.style.overflow = null;
+  gameContainer.style.display = null;
 });
 
 document.querySelector("#startGame").addEventListener("click", openGameStartingModel);
@@ -419,7 +422,7 @@ document.querySelector("#startGame").addEventListener("click", openGameStartingM
 document.querySelector("#showScoreboard").addEventListener("click", e => {
   showScoreboard();
   document.querySelector("#scoreboard").style.display = null;
-  document.querySelector("#mainMenu").style.display = "none";
+  mainMenuContainer.style.display = "none";
 });
 
 
