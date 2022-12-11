@@ -14,8 +14,8 @@
 <div class="mainContainer">
     <div id="mainMenu">
         <div class="mainMenuButtons">
-        <button class="startGame">Start game</button>
-        <button>Show scoreboard</button>
+            <button class="startGame">Start game</button>
+            <button>Show scoreboard</button>
         </div>
     </div>
     <div id="game" style="visibility:hidden">
@@ -81,6 +81,17 @@
         </table>
     </div>
 
+    <dialog>
+        <h1>Start new game</h1>
+        <form action="http://127.0.0.1:3000/newplayer">
+            <input type="text" name="playerName" autocomplete="off" spellcheck="false" placeholder="Username" required>
+            <div class="isocodeWrapper">
+                <span class="error hidden">Isocode cannot be found</span>
+                <input type="text" name="startIsocode" autocomplete="off" spellcheck="false" placeholder="Starting isocode">
+            </div>
+            <input type="submit" value="Start game">
+        </form>
+    </dialog>
 
 
 

@@ -34,7 +34,7 @@ async function airportByIsocode(airportCountry) {
   });
   return jsonAnswer;
 }
-
+// Turha
 async function enterStartingCountry() {
   const startIsoCode = prompt('Enter the starting country code:');
   if (startIsoCode.length == 0) return 'random';
@@ -52,17 +52,17 @@ async function enterStartingCountry() {
   return startIsoCode;
 }
 
-async function addPlayer() {
-  const playerName = prompt('Enter your name :');
-  const startIsoCode = await enterStartingCountry();
+async function addPlayer(playerName, startIsoCode) {
+  document.querySelector("#game").style.visibility = null
+  document.querySelector("#mainMenu").style.display = "none"
+  document.querySelector("dialog").close();
   const airportData = await airportByIsocode(startIsoCode);
-
   const playerJson = await fetchJson('http://127.0.0.1:3000/newplayer', {
     method: 'POST',
     body: JSON.stringify({airport: airportData, playerName: playerName}),
   });
-  flightPath.push([airportData])
-  playerFlightPath.push(airportData.slice(3, 5))
+  flightPath.push([airportData]);
+  playerFlightPath.push(airportData.slice(3, 5));
   currentPlayer = playerJson;
   getNewAirports(6);
 }
@@ -334,6 +334,23 @@ function removeAllMarkers() {
   allMarkers.length = 0;
 }
 
+document.querySelector("form").addEventListener("submit", async function(submitEvent) {
+  submitEvent.preventDefault();
+  const formData = new FormData(this);
+  const errorElem = document.querySelector("form .error");
+  const startIsocode = formData.get("startIsocode");
+
+  if(startIsocode == "" || !errorElem.classList.contains("hidden")) {
+    addPlayer(formData.get("playerName"), "random");
+  } else {
+    const {result} = await fetchJson(`http://127.0.0.1:3000/tarkista-maakoodi/${startIsocode}`)
+    if(result) return addPlayer(formData.get("playerName"), startIsocode);
+
+    errorElem.classList.remove("hidden");
+    document.querySelector(`form input[type="submit"]`).value = "Start anyway"
+  }
+});
+
 
 const reset = document.querySelector(".choiceButtons .reset")
 reset.onclick = async () => {
@@ -362,8 +379,5 @@ document.querySelector("#scoreboard").append(b)
 
 const mainMenuButton = document.querySelector(".startGame")
 mainMenuButton.onclick = async () => {
-  document.querySelector("#game").style.visibility = null
-  document.querySelector("#mainMenu").style.display = "none"
+  document.querySelector("dialog").showModal();
 }
-
-addPlayer();
