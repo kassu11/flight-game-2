@@ -34,33 +34,20 @@ async function airportByIsocode(airportCountry) {
   });
   return jsonAnswer;
 }
-// Turha
-async function enterStartingCountry() {
-  const startIsoCode = prompt('Enter the starting country code:');
-  if (startIsoCode.length == 0) return 'random';
-  const isoResultJson = await fetchJson(
-      `http://127.0.0.1:3000/tarkista-maakoodi/${startIsoCode}`,
-  );
-  if (isoResultJson.result == false) {
-    const again = confirm(
-        'Isocode is not right, do you want to type a new one?',
-    );
-    if (again == true) {
-      return enterStartingCountry();
-    }
-  }
-  return startIsoCode;
-}
 
 async function addPlayer(playerName, startIsoCode) {
   document.querySelector("#game").style.visibility = null
   document.querySelector("#mainMenu").style.display = "none"
   document.querySelector("dialog").close();
+  document.querySelector("#reset").classList.remove("disabled");
+
   const airportData = await airportByIsocode(startIsoCode);
   const playerJson = await fetchJson('http://127.0.0.1:3000/newplayer', {
     method: 'POST',
     body: JSON.stringify({airport: airportData, playerName: playerName}),
   });
+  flightPath.length = 0
+  playerFlightPath.length = 0
   flightPath.push([airportData]);
   playerFlightPath.push(airportData.slice(3, 5));
   currentPlayer = playerJson;
@@ -71,6 +58,8 @@ async function addPlayer(playerName, startIsoCode) {
 async function getNewAirports(numb) {
   const airportResponseJson = await fetchJson(`http://127.0.0.1:3000/airport/${numb}`);
   const buttons = document.querySelectorAll('.buttons tr.button');
+  document.querySelector('.buttons').classList.remove("disabled");
+  document.querySelector('.buttons .selected')?.classList.remove("selected");
   flightPath.push(airportResponseJson);
 
   airportResponseJson.forEach((airport, index) => {
@@ -108,7 +97,6 @@ async function getNewAirports(numb) {
       if(currentPlayer.co2 >= currentPlayer.co2max) endGame();
       else {
         getNewAirports(numb);
-        document.querySelector('.buttons').classList.remove("disabled");
         updateMap({
           longitude_deg: airport[4],
           latitude_deg: airport[3],
@@ -196,14 +184,16 @@ async function saveGame(){
 
 async function endGame(){
   const playerId = await saveGame();
-  // const startAgain = confirm("haluatko aloittaa uuden pelin?")
+
   renderPaths(playerFlightPath);
   document.querySelector("#skip").classList.add("disabled");
   document.querySelector("#reset").classList.add("disabled");
   document.querySelector("#newGameButton").classList.remove("disabled");
   document.querySelector("#scoreboardButton").classList.remove("disabled");
-  // if(startAgain) addPlayer();
-  // else scoreboardById(playerId)
+
+  document.querySelector("#scoreboardButton").onclick = () => {
+    scoreboardById(playerId)
+  }
 }
 
 async function getBestPath() {
@@ -342,11 +332,21 @@ function removeAllMarkers() {
   allMarkers.length = 0;
 }
 
+function openGameStartingModel() {
+  const dialog = document.querySelector("dialog");
+  if(!dialog.open) dialog.showModal();
+  dialog.querySelector("form").reset();
+  dialog.querySelector("form .error").classList.add("hidden");
+  document.querySelector(`form input[type="submit"]`).value = "Start game"
+}
+
 document.querySelector("form").addEventListener("submit", async function(submitEvent) {
   submitEvent.preventDefault();
+  document.querySelector("form input[name='playerName']").disabled = false;
   const formData = new FormData(this);
   const errorElem = document.querySelector("form .error");
   const startIsocode = formData.get("startIsocode");
+
 
   if(startIsocode == "" || !errorElem.classList.contains("hidden")) {
     addPlayer(formData.get("playerName"), "random");
@@ -359,18 +359,23 @@ document.querySelector("form").addEventListener("submit", async function(submitE
   }
 });
 
+document.querySelector("#reset").onclick = async function() {
+  if(this.classList.contains("disabled")) return;
+  openGameStartingModel();
+  const formElem = document.querySelector("form");
+  formElem.querySelector("input[name='startIsocode']").focus();
+  formElem.querySelector("input[name='startIsocode']").select();
+  const playerNameInput = formElem.querySelector("input[name='playerName']");
+  const {nimi, id} = currentPlayer;
+  playerNameInput.value = nimi
+  playerNameInput.disabled = true;
 
-const reset = document.querySelector(".choiceButtons #reset")
-reset.onclick = async () => {
-  await fetch(`http://127.0.0.1:3000/reset-score/${currentPlayer.id}`)
-  const startIsoCode = await enterStartingCountry()
-  const airport = await airportByIsocode(startIsoCode)
-  currentPlayer = await fetchJson('http://127.0.0.1:3000/newplayer', {
-    method: 'POST',
-    body: JSON.stringify({airport, playerName: currentPlayer.nimi}),
-  });
-  updatePlayerInterface(currentPlayer);
-  getNewAirports(6)
+  await new Promise(resolve => formElem.onsubmit = resolve);
+  await fetch(`http://127.0.0.1:3000/reset-score/${id}`)
+}
+document.querySelector("#newGameButton").onclick = async function() {
+  if(this.classList.contains("disabled")) return;
+  openGameStartingModel();
 }
 
 const b = document.createElement("button");
@@ -387,7 +392,7 @@ document.querySelector("#scoreboard").append(b)
 
 const mainMenuButton = document.querySelector(".startGame")
 mainMenuButton.onclick = async () => {
-  document.querySelector("dialog").showModal();
+  openGameStartingModel()
 }
 
 
@@ -399,7 +404,6 @@ mainMenuButton.onclick = async () => {
 window.addEventListener("keydown",e => {
   // console.log(e)
   if(e.code == "BracketLeft") {
-    console.log()
     document.querySelector(".startGame").click();
     document.querySelector(`input[name="playerName"]`).value = "kassu"
     document.querySelector(`input[name="startIsocode"]`).value = "fi"
