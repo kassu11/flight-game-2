@@ -356,6 +356,7 @@ function openGameStartingModel() {
   const dialog = document.querySelector("dialog");
   if(!dialog.open) dialog.showModal();
   dialog.querySelector("form").reset();
+  dialog.querySelector("form input[name='playerName']").disabled = false;
   dialog.querySelector("form .error").classList.add("hidden");
   document.querySelector(`form input[type="submit"]`).value = "Start game"
 }
@@ -401,6 +402,8 @@ document.querySelector("#reset").onclick = async function() {
 document.querySelector("#newGameButton").onclick = async function() {
   if(this.classList.contains("disabled")) return;
   openGameStartingModel();
+  document.querySelector("form input[name='playerName']").focus();
+  document.querySelector("form input[name='playerName']").select();
 }
 
 document.querySelector("#backToMainMenu").addEventListener("click", () => {

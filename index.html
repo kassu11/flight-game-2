@@ -14,8 +14,14 @@
 <div class="mainContainer">
     <div id="mainMenu">
         <div class="mainMenuButtons">
-            <button id="startGame">Start game</button>
-            <button id="showScoreboard">Show scoreboard</button>
+            <h1>Flight Game 2</h1>
+            <div class="container">
+                <div class="menuButtons">
+                    <button id="startGame">Start game</button>
+                    <button id="showScoreboard">Show scoreboard</button>
+                </div>
+                <img src="./images/logo.png" alt="logo">
+            </div>
         </div>
     </div>
     <div id="game" style="visibility:hidden; overflow: scroll">
@@ -104,10 +110,12 @@
     <dialog>
         <h1>Start new game</h1>
         <form action="http://127.0.0.1:3000/newplayer">
-            <input type="text" name="playerName" autocomplete="off" spellcheck="false" placeholder="Username" required>
+            <label for="playerName">Enter username</label>
+            <input type="text" name="playerName" autocomplete="off" spellcheck="false" placeholder="Name" required>
             <div class="isocodeWrapper">
-                <span class="error hidden">Isocode cannot be found</span>
-                <input type="text" name="startIsocode" autocomplete="off" spellcheck="false" placeholder="Starting isocode">
+                <label for="startIsocode">Enter starting airports isocode</label>
+                <span class="error hidden">Isocode can't be found</span>
+                <input type="text" name="startIsocode" autocomplete="off" spellcheck="false" placeholder="E.g. fi">
             </div>
             <input type="submit" value="Start game">
         </form>

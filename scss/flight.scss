@@ -5,6 +5,78 @@ body {
   color: #f1f5f9;
 }
 
+#mainMenu {
+  display: grid;
+
+  .mainMenuButtons {
+    flex-direction: column;
+    flex-wrap: wrap;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    padding: 30px;
+    border: 5px solid #475569;
+    width: max-content;
+    margin: auto;
+    gap: 25px;
+    border-radius: 25px;
+    background: #1e293b;
+
+    h1 {
+      font-size: 65px;
+      margin: 0px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .container {
+      display: flex;
+      gap: 25px;
+      flex-direction: row-reverse;
+
+      .menuButtons {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+
+        button {
+          background: #0e7490;
+          border-radius: 10px;
+          border-style: solid;
+          color: #cffafe;
+          font-weight: 500;
+          font-size: 30px;
+          padding: 20px;
+          margin: 0px;
+          font-family: 'JetBrains Mono';
+          border: 5px solid #22d3ee;
+          transition: .2s all;
+          cursor: pointer;
+    
+          &:hover {
+            transform: scale(1.04);
+            color: #ecfeff;
+            border-color: #67e8f9;
+            background: #06b6d4;
+            text-shadow: 0px 0px 5px black;
+          }
+
+          &:active {
+            transform: scale(1.02);
+            border-color: #a5f3fc;
+            background: #0891b2;
+          }
+        }
+      }
+
+      img {
+        height: 350px;
+        border-radius: 10px;
+      }
+    }    
+  }
+}
+
 .mainContainer {
   position: absolute;
   inset: 0px;
@@ -22,7 +94,6 @@ body {
 .mapContainer {
   display:flex;
   gap: 10px;
-
 }
 
 
@@ -277,30 +348,7 @@ tr.selected {
 
 
 
-.mainMenuButtons {
-  flex-direction: column;
-  flex-wrap: wrap;
-  display: flex;
-  align-content: center;
-  justify-content: center;
-  padding: 30px;
-}
 
-.mainMenuButtons button {
-  border-color: #22d3ee;
-  background: #0e7490;
-  border-radius: 10px;
-  border-style: solid;
-  color: #cffafe;
-  padding: 5px;
-  margin: 30px;
-  font-weight: 500;
-}
-
-.mainMenuButtons button:hover {
-  transform: scale(1.2);
-  cursor: pointer;
-}
 
 .choiceButtons {
   display: grid;
@@ -343,20 +391,128 @@ tr.selected {
 }
 
 
-form {
+dialog {
+  display: flex;
+  &[open] {
+    border: 2px solid #475569;
+    border-radius: 10px;
+    gap: 10px;
+    padding: 50px;
+    flex-direction: column;
+    background-color: #1e293b;
+    transition: .2s transform;
+  }
 
-  .isocodeWrapper {
-    position: relative;
-    display: grid;
-    place-items: center;
-    .error {
-      // display: block;
-      // position: absolute;
-      background-color: red;
+  &:not([open]) {
+    visibility: hidden;
+    transform: scale(0);
+  }
 
-      &.hidden {
-        display: none;
+  h1 {
+    color: #f1f5f9;
+    margin: 0px;
+    margin-bottom: 10px;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    label {
+      color: #f1f5f9;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input[type="text"] {
+      background: #164e63;
+      position: relative;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 14px;
+      border: 2px solid #67e8f9;
+      color: #ecfeff;
+      font-family: "JetBrains Mono";
+      text-overflow: ellipsis;
+      box-shadow: inset 0 0 5px 1px #00000091;
+
+      &:disabled {
+        opacity: .5;
+      }
+
+      &::placeholder {
+        color: #ecfeff;
+        opacity: .5;
+      }
+    }
+    .isocodeWrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .error {
+        background-color: #b91c1c;
+        padding: 5px 10px;
+        color: white;
+        border-radius: 5px;
+        bottom: calc(100% - 5px);
+        position: absolute;
+        isolation: isolate;
+        transition: .2s all;
+
+
+        &::after {
+          content: "";
+          position: absolute;
+          width: 12px;
+          height: 12px;
+          background-color: #b91c1c;
+          rotate: 45deg;
+          bottom: -6px;
+          left: 20px;
+          z-index: -1;
+        }
+  
+        &.hidden {
+          transform: scale(0);
+          visibility: hidden;
+        }
+      }
+    }
+
+    input[type="submit"] {
+      background: #0e7490;
+      border-radius: 10px;
+      border-style: solid;
+      color: #cffafe;
+      font-weight: 500;
+      font-size: 18px;
+      padding: 8px;
+      margin: 0px;
+      font-family: 'JetBrains Mono';
+      border: 5px solid #22d3ee;
+      transition: .2s all;
+      cursor: pointer;
+      margin-top: 15px;
+
+      &:hover {
+        transform: scale(1.04);
+        color: #ecfeff;
+        border-color: #67e8f9;
+        background: #06b6d4;
+        text-shadow: 0px 0px 5px black;
+      }
+
+      &:active {
+        transform: scale(1.02);
+        border-color: #a5f3fc;
+        background: #0891b2;
       }
     }
   }
+}
+
+dialog::backdrop {
+  background-color: #0000009e;
 }

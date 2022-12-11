@@ -5,6 +5,72 @@ body {
   color: #f1f5f9;
 }
 
+#mainMenu {
+  display: grid;
+}
+#mainMenu .mainMenuButtons {
+  flex-direction: column;
+  flex-wrap: wrap;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  padding: 30px;
+  border: 5px solid #475569;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  margin: auto;
+  gap: 25px;
+  border-radius: 25px;
+  background: #1e293b;
+}
+#mainMenu .mainMenuButtons h1 {
+  font-size: 65px;
+  margin: 0px;
+  font-weight: 900;
+  text-align: center;
+}
+#mainMenu .mainMenuButtons .container {
+  display: flex;
+  gap: 25px;
+  flex-direction: row-reverse;
+}
+#mainMenu .mainMenuButtons .container .menuButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+#mainMenu .mainMenuButtons .container .menuButtons button {
+  background: #0e7490;
+  border-radius: 10px;
+  border-style: solid;
+  color: #cffafe;
+  font-weight: 500;
+  font-size: 30px;
+  padding: 20px;
+  margin: 0px;
+  font-family: "JetBrains Mono";
+  border: 5px solid #22d3ee;
+  transition: 0.2s all;
+  cursor: pointer;
+}
+#mainMenu .mainMenuButtons .container .menuButtons button:hover {
+  transform: scale(1.04);
+  color: #ecfeff;
+  border-color: #67e8f9;
+  background: #06b6d4;
+  text-shadow: 0px 0px 5px black;
+}
+#mainMenu .mainMenuButtons .container .menuButtons button:active {
+  transform: scale(1.02);
+  border-color: #a5f3fc;
+  background: #0891b2;
+}
+#mainMenu .mainMenuButtons .container img {
+  height: 350px;
+  border-radius: 10px;
+}
+
 .mainContainer {
   position: absolute;
   inset: 0px;
@@ -271,31 +337,6 @@ tr.selected {
   background-color: green;
 }
 
-.mainMenuButtons {
-  flex-direction: column;
-  flex-wrap: wrap;
-  display: flex;
-  align-content: center;
-  justify-content: center;
-  padding: 30px;
-}
-
-.mainMenuButtons button {
-  border-color: #22d3ee;
-  background: #0e7490;
-  border-radius: 10px;
-  border-style: solid;
-  color: #cffafe;
-  padding: 5px;
-  margin: 30px;
-  font-weight: 500;
-}
-
-.mainMenuButtons button:hover {
-  transform: scale(1.2);
-  cursor: pointer;
-}
-
 .choiceButtons {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -330,14 +371,127 @@ tr.selected {
   border-color: #38bdf8;
 }
 
-form .isocodeWrapper {
+dialog {
+  display: flex;
+}
+dialog[open] {
+  border: 2px solid #475569;
+  border-radius: 10px;
+  gap: 10px;
+  padding: 50px;
+  flex-direction: column;
+  background-color: #1e293b;
+  transition: 0.2s transform;
+}
+dialog:not([open]) {
+  visibility: hidden;
+  transform: scale(0);
+}
+dialog h1 {
+  color: #f1f5f9;
+  margin: 0px;
+  margin-bottom: 10px;
+}
+dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+dialog form label {
+  color: #f1f5f9;
+  font-weight: 500;
+  font-size: 14px;
+}
+dialog form input[type=text] {
+  background: #164e63;
   position: relative;
-  display: grid;
-  place-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  border: 2px solid #67e8f9;
+  color: #ecfeff;
+  font-family: "JetBrains Mono";
+  text-overflow: ellipsis;
+  box-shadow: inset 0 0 5px 1px rgba(0, 0, 0, 0.568627451);
 }
-form .isocodeWrapper .error {
-  background-color: red;
+dialog form input[type=text]:disabled {
+  opacity: 0.5;
 }
-form .isocodeWrapper .error.hidden {
-  display: none;
+dialog form input[type=text]::-moz-placeholder {
+  color: #ecfeff;
+  opacity: 0.5;
+}
+dialog form input[type=text]:-ms-input-placeholder {
+  color: #ecfeff;
+  opacity: 0.5;
+}
+dialog form input[type=text]::placeholder {
+  color: #ecfeff;
+  opacity: 0.5;
+}
+dialog form .isocodeWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+dialog form .isocodeWrapper .error {
+  background-color: #b91c1c;
+  padding: 5px 10px;
+  color: white;
+  border-radius: 5px;
+  bottom: calc(100% - 5px);
+  position: absolute;
+  isolation: isolate;
+  transition: 0.2s all;
+}
+dialog form .isocodeWrapper .error::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: #b91c1c;
+  rotate: 45deg;
+  bottom: -6px;
+  left: 20px;
+  z-index: -1;
+}
+dialog form .isocodeWrapper .error.hidden {
+  transform: scale(0);
+  visibility: hidden;
+}
+dialog form input[type=submit] {
+  background: #0e7490;
+  border-radius: 10px;
+  border-style: solid;
+  color: #cffafe;
+  font-weight: 500;
+  font-size: 18px;
+  padding: 8px;
+  margin: 0px;
+  font-family: "JetBrains Mono";
+  border: 5px solid #22d3ee;
+  transition: 0.2s all;
+  cursor: pointer;
+  margin-top: 15px;
+}
+dialog form input[type=submit]:hover {
+  transform: scale(1.04);
+  color: #ecfeff;
+  border-color: #67e8f9;
+  background: #06b6d4;
+  text-shadow: 0px 0px 5px black;
+}
+dialog form input[type=submit]:active {
+  transform: scale(1.02);
+  border-color: #a5f3fc;
+  background: #0891b2;
+}
+
+dialog::-webkit-backdrop {
+  background-color: rgba(0, 0, 0, 0.6196078431);
+}
+
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.6196078431);
 }/*# sourceMappingURL=flight.css.map */
