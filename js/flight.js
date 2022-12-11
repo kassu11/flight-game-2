@@ -70,9 +70,7 @@ async function getNewAirports(numb) {
     button.querySelector("td.country").textContent = `${airport[0]}`;
     button.querySelector("td.airport").textContent = airport[1];
 
-    console.log(document.querySelector('.buttons').classList.contains("disabled"))
-
-    const {matka, score} = await fetchJson(
+    const calculateJson = await fetchJson(
       `http://127.0.0.1:3000/laske-lennon-tiedot`, {
         method: 'POST',
         body: JSON.stringify({
@@ -82,23 +80,13 @@ async function getNewAirports(numb) {
       },
     );
 
-    button.querySelector("td.distance").textContent = `${matka} km`;
-    button.querySelector("td.score").textContent = `${score} p`;
+    button.querySelector("td.distance").textContent = `${calculateJson.matka} km`;
+    button.querySelector("td.score").textContent = `${calculateJson.score} p`;
 
     document.querySelector("#skip").classList.add("disabled");
     document.querySelector("#newGameButton").classList.add("disabled");
     document.querySelector("#scoreboardButton").classList.add("disabled");
     button.onclick = async () => {
-      const calculateJson = await fetchJson(
-        `http://127.0.0.1:3000/laske-lennon-tiedot`, {
-          method: 'POST',
-          body: JSON.stringify({
-            alkuLentokentta: currentAirport,
-            loppuLentokentta: airport,
-          }),
-        },
-      );
-
       showAllMapResults(airportResponseJson, airport);
       playerFlightPath.push(airport.slice(3, 5));
       buttons.forEach(button => button.onclick = null);
@@ -224,9 +212,7 @@ async function getBestPath() {
     })
   });
 
-
   const arr = bestPath.flightPaths.map(path => path[0].slice(0, 2))
-  console.log(arr)
 
   renderPaths(arr);
 }
@@ -301,6 +287,7 @@ async function showScoreboard() {
 
 async function showScoreboardById(id) {
   const {playerList, startIndex} = await fetchJson(`http://127.0.0.1:3000/scoreboard/${id}`)
+  let scrollTarget = null;
 
   const tbodySelect = document.querySelector("#scoreboard tbody")
   tbodySelect.textContent = "";
@@ -308,6 +295,7 @@ async function showScoreboardById(id) {
     const tableRow = document.createElement("tr")
     if (row[0] == id) {
       tableRow.classList.add("selected")
+      scrollTarget = tableRow
     }
     row[0] = startIndex + index
     row.forEach(value => {
@@ -316,9 +304,11 @@ async function showScoreboardById(id) {
       tableRow.append(column)
     })
     tbodySelect.append(tableRow)
-  })
+  });
+
   document.querySelector("#scoreboard").style.display = null
   document.querySelector("#game").style.display = "none"
+  scrollTarget.scrollIntoView({behavior: "smooth", block: "center"})
 }
 
 function updatePlayerInterface(player) {
@@ -430,16 +420,16 @@ document.querySelector("#showScoreboard").addEventListener("click", e => {
   showScoreboard();
   document.querySelector("#scoreboard").style.display = null;
   document.querySelector("#mainMenu").style.display = "none";
-
 });
 
 
 
 
-// Debugging
+
+const DEBUG = false;
 
 window.addEventListener("keydown", e => {
-  // console.log(e)
+  if(!DEBUG) return;
   if(e.code == "BracketLeft") {
     document.querySelector("#startGame").click();
     document.querySelector(`input[name="playerName"]`).value = "kassu"
@@ -447,5 +437,3 @@ window.addEventListener("keydown", e => {
     document.querySelector(`input[type="submit"]`).click();
   }
 })
-
-// scoreboardById(150)

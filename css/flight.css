@@ -329,12 +329,107 @@ body {
   color: #cffafe;
 }
 
-thead {
-  text-align: left;
+#scoreboard {
+  position: absolute;
+  inset: 0px;
+  display: grid;
+  grid-template-rows: auto 1fr 90px;
+  max-height: 800px;
+  margin-block: auto;
+}
+#scoreboard h1 {
+  text-align: center;
+}
+#scoreboard .tableContainer {
+  position: relative;
+  max-width: -webkit-max-content;
+  max-width: -moz-max-content;
+  max-width: max-content;
+  width: 100%;
+  max-width: min(100%, 900px);
+  height: 100%;
+  overflow: auto;
+  margin-inline: auto;
+  border: 2px solid #22d3ee;
+}
+#scoreboard .tableContainer table {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+  color: #ecfeff;
+  border: none;
+}
+#scoreboard .tableContainer table thead {
+  top: 0px;
+  position: -webkit-sticky;
+  position: sticky;
+  background-color: #1e293b;
+  color: #f1f5f9;
+  font-size: 16px;
+  padding: 10px;
+}
+#scoreboard .tableContainer table thead th {
+  padding: 5px;
+  padding-left: 0px;
+}
+#scoreboard .tableContainer table :where(td, th):first-child {
+  padding-left: 10px;
+}
+#scoreboard .tableContainer table :where(td, th):last-child {
+  padding-right: 10px;
+}
+#scoreboard .tableContainer table :where(td, th):not(:last-child) {
+  padding-right: 30px;
+}
+#scoreboard .tableContainer table tbody tr:nth-child(odd) {
+  background-color: #164e63;
+}
+#scoreboard .tableContainer table tbody tr:nth-child(even) {
+  background-color: #0e7490;
+}
+#scoreboard .tableContainer table tbody tr.selected {
+  background-color: #111827;
+  color: #cffafe;
+  text-shadow: 0 0 3px white;
+  font-size: 18px;
+}
+#scoreboard .buttonsContainer {
+  position: relative;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  margin: auto;
+}
+#scoreboard .buttonsContainer button {
+  background: #0e7490;
+  border-radius: 10px;
+  border-style: solid;
+  color: #cffafe;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 10px 20px;
+  margin: 0px;
+  font-family: "JetBrains Mono";
+  border: 2px solid #22d3ee;
+  transition: 0.2s all;
+  cursor: pointer;
+}
+#scoreboard .buttonsContainer button:hover {
+  transform: scale(1.04);
+  color: #ecfeff;
+  border-color: #67e8f9;
+  background: #06b6d4;
+  text-shadow: 0px 0px 5px black;
+}
+#scoreboard .buttonsContainer button:active {
+  transform: scale(1.02);
+  border-color: #a5f3fc;
+  background: #0891b2;
 }
 
-tr.selected {
-  background-color: green;
+thead {
+  text-align: left;
 }
 
 .choiceButtons {
@@ -382,6 +477,12 @@ dialog[open] {
   flex-direction: column;
   background-color: #1e293b;
   transition: 0.2s transform;
+}
+dialog::-webkit-backdrop {
+  background-color: rgba(0, 0, 0, 0.6196078431);
+}
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.6196078431);
 }
 dialog:not([open]) {
   visibility: hidden;
@@ -488,10 +589,25 @@ dialog form input[type=submit]:active {
   background: #0891b2;
 }
 
-dialog::-webkit-backdrop {
-  background-color: rgba(0, 0, 0, 0.6196078431);
+::-webkit-scrollbar {
+  width: 10px;
 }
 
-dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.6196078431);
+/* Track */
+::-webkit-scrollbar-track {
+  background: #164e63;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #06b6d4;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #67e8f9;
+}
+
+::-webkit-scrollbar-corner {
+  background: #0d2e3a;
 }/*# sourceMappingURL=flight.css.map */
