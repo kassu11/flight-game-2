@@ -17,11 +17,11 @@ async function fetchJson(url, param={}) {
 }
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-function nextRound() {
+function nextRoundButton() {
   return new Promise(resolve => {
-    const button = document.querySelector(".choiceButtons .skip")
+    const button = document.querySelector(".choiceButtons #skip")
     button.onclick = resolve
-  })
+  });
 }
 
 async function airportByIsocode(airportCountry) {
@@ -65,6 +65,7 @@ async function addPlayer(playerName, startIsoCode) {
   playerFlightPath.push(airportData.slice(3, 5));
   currentPlayer = playerJson;
   getNewAirports(6);
+  updatePlayerInterface(currentPlayer);
 }
 
 async function getNewAirports(numb) {
@@ -78,6 +79,10 @@ async function getNewAirports(numb) {
     button.onmouseover = null;
     button.querySelector("td.country").textContent = `${airport[0]}`;
     button.querySelector("td.airport").textContent = airport[1];
+
+    document.querySelector("#skip").classList.add("disabled");
+    document.querySelector("#newGameButton").classList.add("disabled");
+    document.querySelector("#scoreboardButton").classList.add("disabled");
     button.onclick = async () => {
       const calculateJson = await fetchJson(
           `http://127.0.0.1:3000/laske-lennon-tiedot`,
@@ -97,20 +102,19 @@ async function getNewAirports(numb) {
 
       await postPlayerFlight(airport, calculateJson)
       updatePlayerInterface(currentPlayer);
-      await nextRound();
+      await nextRoundButton();
 
-
-      document.querySelector('.buttons').classList.remove("disabled");
       button.classList.remove("selected");
-    
-      removeAllMarkers();
-      updateMap({
-        longitude_deg: airport[4],
-        latitude_deg: airport[3],
-        name: airport[1],
-      });
-      if(currentPlayer.co2 >= currentPlayer.co2max && false) endGame();
-      else getNewAirports(numb);
+      if(currentPlayer.co2 >= currentPlayer.co2max) endGame();
+      else {
+        getNewAirports(numb);
+        document.querySelector('.buttons').classList.remove("disabled");
+        updateMap({
+          longitude_deg: airport[4],
+          latitude_deg: airport[3],
+          name: airport[1],
+        });
+      }
     };
   });
 }
@@ -192,10 +196,14 @@ async function saveGame(){
 
 async function endGame(){
   const playerId = await saveGame();
-  const startAgain = confirm("haluatko aloittaa uuden pelin?")
-
-  if(startAgain) addPlayer();
-  else scoreboardById(playerId)
+  // const startAgain = confirm("haluatko aloittaa uuden pelin?")
+  renderPaths(playerFlightPath);
+  document.querySelector("#skip").classList.add("disabled");
+  document.querySelector("#reset").classList.add("disabled");
+  document.querySelector("#newGameButton").classList.remove("disabled");
+  document.querySelector("#scoreboardButton").classList.remove("disabled");
+  // if(startAgain) addPlayer();
+  // else scoreboardById(playerId)
 }
 
 async function getBestPath() {
@@ -241,7 +249,7 @@ function renderPaths(path) {
     const markerElem = createMarkerElement("dot");
     markerElem.style.background = `hsl(${10 * i % 360}deg 100% 50%)`;
     markerElem.querySelector("p").textContent = i;
-    const iconOption = {html: i == 0 ? createMarkerElement("current") : markerElem}
+    const iconOption = {html: i == 0 ? createMarkerElement("default") : markerElem}
     const icon = L.divIcon(iconOption);
     const marker = L.marker([lati,  long], {icon: icon}).addTo(map);
     allMarkers.push(marker);
@@ -304,17 +312,17 @@ async function scoreboardById(id) {
 }
 
 function updatePlayerInterface(player) {
-  document.querySelector('#player .text').textContent = player.nimi;
-  document.querySelector('#score .text').textContent = player.score;
-  document.querySelector(
-      '#totalCo2 .text').textContent = `${player.co2.formatNumbers()} / 
-                    ${player.co2max.formatNumbers()}`;
-  document.querySelector(
-      '#airport .text').textContent = `[${player.airport[0]}] ${player.airport[1]}`;
-  console.log(player.airport);
+  document.querySelector("#player .text").textContent = player.nimi;
+  document.querySelector("#score .text").textContent = player.score;
+  const scoreText = `${player.co2.formatNumbers()} / ${player.co2max.formatNumbers()}`;
+  document.querySelector("#totalCo2 .text").textContent = scoreText;
+  document.querySelector("#airport .text").textContent = `[${player.airport[0]}] ${player.airport[1]}`;
+  
+  document.querySelector("#skip").classList.remove("disabled");
 }
 
 function updateMap(jsonAnswer) {
+  removeAllMarkers();
   const longitude_deg = jsonAnswer.longitude_deg;
   const latitude_deg = jsonAnswer.latitude_deg;
   const iconElement = createMarkerElement("default");
@@ -352,17 +360,17 @@ document.querySelector("form").addEventListener("submit", async function(submitE
 });
 
 
-const reset = document.querySelector(".choiceButtons .reset")
+const reset = document.querySelector(".choiceButtons #reset")
 reset.onclick = async () => {
-  const resetPlayer = await fetchJson(`http://127.0.0.1:3000/reset-score/${currentPlayer.id}`)
-  startIsoCode = await enterStartingCountry()
-  airportData = await airportByIsocode(startIsoCode)
+  await fetch(`http://127.0.0.1:3000/reset-score/${currentPlayer.id}`)
+  const startIsoCode = await enterStartingCountry()
+  const airport = await airportByIsocode(startIsoCode)
   currentPlayer = await fetchJson('http://127.0.0.1:3000/newplayer', {
     method: 'POST',
-    body: JSON.stringify({airport: airportData, playerName: currentPlayer.nimi}),
+    body: JSON.stringify({airport, playerName: currentPlayer.nimi}),
   });
-    updatePlayerInterface(currentPlayer);
-    getNewAirports(6)
+  updatePlayerInterface(currentPlayer);
+  getNewAirports(6)
 }
 
 const b = document.createElement("button");
@@ -381,3 +389,20 @@ const mainMenuButton = document.querySelector(".startGame")
 mainMenuButton.onclick = async () => {
   document.querySelector("dialog").showModal();
 }
+
+
+
+
+
+// Debugging
+
+window.addEventListener("keydown",e => {
+  // console.log(e)
+  if(e.code == "BracketLeft") {
+    console.log()
+    document.querySelector(".startGame").click();
+    document.querySelector(`input[name="playerName"]`).value = "kassu"
+    document.querySelector(`input[name="startIsocode"]`).value = "fi"
+    document.querySelector(`input[type="submit"]`).click();
+  }
+})
