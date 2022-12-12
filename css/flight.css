@@ -281,12 +281,13 @@ body {
 .buttons table .button .score, .buttons table .button .distance {
   white-space: nowrap;
   font-weight: 900;
+  text-shadow: 0 0 2px black;
 }
 .buttons table .button .score {
-  color: #eab308;
+  color: #ffcc2e;
 }
 .buttons table .button .distance {
-  color: #ea580c;
+  color: #ff752d;
 }
 .buttons table .button .country {
   color: #ecfeff;

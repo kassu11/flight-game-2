@@ -282,10 +282,11 @@ body {
       .score, .distance {
         white-space: nowrap;
         font-weight: 900;
+        text-shadow: 0 0 2px black;
       }
 
-      .score {color: #eab308}
-      .distance {color: #ea580c}
+      .score {color: #ffcc2e}
+      .distance {color: #ff752d}
 
       .country {
         color: #ecfeff;
