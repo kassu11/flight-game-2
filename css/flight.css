@@ -278,7 +278,18 @@ body {
   padding: 15px;
   border: none;
 }
-.buttons table .button .score, .buttons table .button .distance {
+.buttons table .button .stats {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  min-width: -webkit-max-content;
+  min-width: -moz-max-content;
+  min-width: max-content;
+}
+.buttons table .button .type {
+  grid-column: 1/3;
+  white-space: nowrap;
+}
+.buttons table .button .score, .buttons table .button .distance, .buttons table .button .type .text {
   white-space: nowrap;
   font-weight: 900;
   text-shadow: 0 0 2px black;
@@ -288,6 +299,9 @@ body {
 }
 .buttons table .button .distance {
   color: #ff752d;
+}
+.buttons table .button .type .text {
+  color: #ffffff;
 }
 .buttons table .button .country {
   color: #ecfeff;
@@ -303,7 +317,7 @@ body {
   z-index: -1;
   transition: 0.15s all;
 }
-.buttons:not(.disabled) .score, .buttons:not(.disabled) .distance {
+.buttons:not(.disabled) .stats {
   opacity: 0;
   -webkit-user-select: none;
      -moz-user-select: none;

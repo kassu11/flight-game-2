@@ -87,8 +87,11 @@ async function getNewAirports(numb) {
       },
     );
 
-    button.querySelector("td.distance").textContent = `${calculateJson.matka} km`;
-    button.querySelector("td.score").textContent = `${calculateJson.score} p`;
+    button.querySelector("td .distance").textContent = `${calculateJson.matka} km`;
+    button.querySelector("td .score").textContent = `${calculateJson.score} p`;
+    button.querySelector("td .type .text").textContent = airport[5];
+
+    console.log(airport);
 
     skipButton.classList.add("disabled");
     document.querySelector("#newGameButton").classList.add("disabled");
