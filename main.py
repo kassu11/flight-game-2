@@ -6,6 +6,7 @@ import mysql.connector
 from dotenv import load_dotenv
 import os
 import json
+import copy
 
 
 load_dotenv(".env")
@@ -117,25 +118,27 @@ def laske_matka():
         json_response = request.get_json(force=True)
         alkukentta = json_response["alkuLentokentta"][3:5]
         nykynen_kentta = json_response["loppuLentokentta"][3:5]
-        print(nykynen_kentta)
-        matka = geodesic(alkukentta, nykynen_kentta).km
-        points_by_type = {
-            "small_airport": 10,
-            "heliport": 15,
-            "closed": -15,
-            "medium_airport": 20,
-            "seaplane_base": 30,
-            "large_airport": 45,
-            "balloonport": 90,
-        }
-
-        conversion = matka / 1000
         airport_type = json_response["loppuLentokentta"][5]
-        score = points_by_type[airport_type] - conversion
-        co2 = 2 * matka
+        return calculate_flight_info(alkukentta, nykynen_kentta, airport_type)
 
-        return {"matka": round(matka), "score": round(score, 2), "co2": round(co2)}
 
+def calculate_flight_info(start_airport, end_airport, type_of_airport):
+    matka = geodesic(start_airport, end_airport).km
+    points_by_type = {
+        "small_airport": 10,
+        "heliport": 15,
+        "closed": -15,
+        "medium_airport": 20,
+        "seaplane_base": 30,
+        "large_airport": 45,
+        "balloonport": 90,
+    }
+
+    conversion = matka / 1000
+    score = points_by_type[type_of_airport] - conversion
+    co2 = 2 * matka
+
+    return {"matka": round(matka), "score": round(score, 2), "co2": round(co2)}
 
 cursor.execute("""
 select country.name, airport.name, ident, 
@@ -143,6 +146,15 @@ select country.name, airport.name, ident,
     airport, country where 
       airport.iso_country = country.iso_country""")
 all_airports = cursor.fetchall()
+
+@app.route("/reset-score/<id>")
+def delete_player(id):
+    for player in players_list:
+        if player.id == int(id):
+            players_list.remove(player)
+            break
+    return {"status":"Ok"}
+
 
 
 @app.route("/airport/<numero>")
@@ -164,7 +176,44 @@ def choose_airport(numero):
             airport_buttons.append(airport)
     return airport_buttons
 
+@app.route("/best-flight-path", methods=["POST"])
+def best_flight_path():
+    if request.method == "POST":
+        json_response = request.get_json(force=True)
+        length = len(json_response["flightPaths"]) - 2
+        for i in range(length):
+            global max_score
+            global best_path
+            max_score = None
+            best_path = None
 
+            def loop(arr, current, score, path):
+                global max_score 
+                global best_path 
+                if len(arr) == 0:
+                    if max_score == None or score > max_score:
+                        max_score = score
+                        best_path = path
+                    return
+                for rivi in arr[0]:
+                    end = rivi[0:2]
+                    stats = calculate_flight_info(current, end, rivi[2])
+                    path = copy.deepcopy(path)
+                    path.append(rivi)
+                    return loop(arr[1:], end, score + stats["score"], path) 
+
+            loop(json_response["flightPaths"][i+1:i+3], json_response["flightPaths"][i][0][0:2], 0, [])
+            if len(best_path) > 1: json_response["flightPaths"][i+1] = [best_path[1]]
+
+        score = None
+        for airport in json_response["flightPaths"][-1]:
+            stats = calculate_flight_info(json_response["flightPaths"][-2][0][0:2], airport[0:2], airport[2])
+            if score == None or score < stats["score"]:
+                score = stats["score"]
+                json_response["flightPaths"][-1] = [airport]
+
+        return json_response
+    
 
 @app.route("/save", methods=["POST"])
 def update_sql():
@@ -184,19 +233,18 @@ def update_sql():
 
 @app.route("/scoreboard/")
 def send_scoreboard():
-    sql = "select screen_name, score, co2_consumed from game order by score desc limit 100;"
+    sql = "select id, screen_name, score, co2_consumed from game order by score desc limit 100;"
     cursor.execute(sql)
     result = cursor.fetchall()
     return result
 
 @app.route("/scoreboard/<id>")
 def scoreboard_by_id(id):
-    int_id = int(id)
-    sql = "select cast(id as int), screen_name, score, co2_consumed from game order by score desc;"
+    sql = "select id, screen_name, score, co2_consumed from game order by score desc;"
     cursor.execute(sql)
     result = cursor.fetchall()
     for riviNumero in range(len(result)):
-        if result[riviNumero][0] == int_id:
+        if result[riviNumero][0] == id:
             players = result[max(riviNumero-20, 0):riviNumero+21]
             return {"playerList": players, "startIndex": riviNumero}
     return {"error": "id not found"}
