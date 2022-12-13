@@ -94,6 +94,7 @@ body {
 .mapContainer {
   display:flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 
@@ -106,6 +107,7 @@ body {
 
 .mapContainer > div {
   width: 200px;
+  min-width: max-content;
   flex-grow: 1;
   position: relative;
 }
